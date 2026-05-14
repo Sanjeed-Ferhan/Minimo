@@ -1,146 +1,650 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>Minimo</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap" rel="stylesheet">
-	<script src="https://kit.fontawesome.com/49b02e2849.js" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALEL Capacity Study</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0b0d12;
+  --card:     #13151c;
+  --card2:    #1a1d27;
+  --border:   #252836;
+  --border2:  #2f3347;
+  --accent:   #3ecf8e;
+  --accent2:  #f5a623;
+  --accent3:  #5c7cfa;
+  --accent4:  #f06595;
+  --text:     #e2e5f0;
+  --muted:    #6b7094;
+  --muted2:   #4a4f6a;
+  --mono:     'IBM Plex Mono', monospace;
+  --sans:     'DM Sans', sans-serif;
+  --radius:   10px;
+  --shadow:   0 4px 24px rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.sidebar-head {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-family: var(--mono);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sidebar-logo::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+.search-box {
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 8px 10px 8px 32px;
+  border-radius: 7px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { color: var(--muted2); }
+.search-box svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.sidebar-list::-webkit-scrollbar { width: 4px; }
+.sidebar-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sidebar-item {
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  border-left: 2px solid transparent;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.35;
+}
+.sidebar-item:hover { background: rgba(62,207,142,0.06); color: var(--text); }
+.sidebar-item.active {
+  background: rgba(62,207,142,0.1);
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sidebar-item .item-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  min-width: 22px;
+  flex-shrink: 0;
+}
+.sidebar-item.active .item-num { color: var(--accent); opacity: .7; }
+
+.sidebar-item .item-daily {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  flex-shrink: 0;
+}
+.sidebar-item.active .item-daily { color: var(--accent); opacity: .8; }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px 60px;
+  min-width: 0;
+}
+.main::-webkit-scrollbar { width: 5px; }
+.main::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Page header ── */
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.page-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.page-sub span { display: flex; align-items: center; gap: 5px; }
+
+/* ── KPI cards ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .15s;
+}
+.kpi-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--kpi-color, var(--accent));
+}
+
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.kpi-label svg { color: var(--kpi-color, var(--accent)); }
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--kpi-color, var(--accent));
+}
+.kpi-value small {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+/* ── Bar chart ── */
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 28px;
+}
+
+.bar-chart { display: flex; flex-direction: column; gap: 8px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  width: 200px;
+  min-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--card2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+  transition: width .5s ease;
+  min-width: 2px;
+}
+.bar-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  min-width: 50px;
+  font-weight: 600;
+}
+
+/* ── Steps table ── */
+.steps-table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.steps-table-head {
+  padding: 14px 20px;
+  background: var(--card2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.steps-table-head h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.steps-table-head h3 svg { color: var(--accent3); }
+
+.badge-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(92,124,250,0.15);
+  border: 1px solid rgba(92,124,250,0.3);
+  color: var(--accent3);
+}
+
+.steps-scroll { overflow-x: auto; }
+.steps-scroll::-webkit-scrollbar { height: 4px; }
+.steps-scroll::-webkit-scrollbar-thumb { background: var(--border2); }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12.5px;
+}
+thead th {
+  background: var(--card2);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+thead th:first-child { width: 40px; text-align: center; color: var(--muted2); }
+thead th.col-accent { color: var(--accent2); }
+
+tbody tr { border-bottom: 1px solid rgba(37,40,54,0.7); transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+tbody td { padding: 10px 14px; vertical-align: middle; }
+tbody td:first-child {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  width: 40px;
+}
+
+.step-name { font-weight: 500; color: var(--text); line-height: 1.4; }
+.worker-name { color: var(--muted); font-size: 11.5px; }
+
+.mp-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(92,124,250,0.15);
+  border: 1px solid rgba(92,124,250,0.25);
+  color: var(--accent3);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  width: 26px; height: 22px;
+  border-radius: 5px;
+}
+
+.rating-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.rating-high { background: rgba(62,207,142,0.12); color: var(--accent); border: 1px solid rgba(62,207,142,0.25); }
+.rating-mid  { background: rgba(245,166,35,0.12);  color: var(--accent2); border: 1px solid rgba(245,166,35,0.25); }
+.rating-low  { background: rgba(240,101,149,0.12); color: var(--accent4); border: 1px solid rgba(240,101,149,0.25); }
+
+.num-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  text-align: right;
+}
+.num-cell.dim { color: var(--muted); }
+
+/* Hourly micro-bar */
+.hourly-wrap { display: flex; align-items: center; gap: 7px; }
+.hourly-bar { flex: 1; min-width: 40px; height: 5px; background: var(--card2); border-radius: 3px; overflow: hidden; }
+.hourly-fill { height: 100%; border-radius: 3px; background: var(--accent2); }
+.hourly-num { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--accent2); min-width: 32px; text-align: right; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty svg { margin-bottom: 12px; opacity: .3; }
+.empty p { font-size: 14px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sidebar { width: 220px; min-width: 220px; }
+  .bar-label { width: 120px; min-width: 120px; }
+}
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .main { padding: 16px 16px 40px; }
+}
+
+/* ── Animations ── */
+.fade-in { animation: fadeIn .25s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── No-data notice ── */
+.no-data-card {
+  background: var(--card);
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 20px;
+}
+</style>
 </head>
 <body>
-	<!--header start-->
-	<section class="header">
-		<div class="wrapper">
-			<div class="logo">
-			<img src="images/logo.png">	
-			</div>
-			<div class="menu">
-				<ul>
-					<li><a href="#">lifestyle</a></li>
-					<li><a href="#">photodiary</a></li>
-					<li><a href="#">music</a></li>
-					<li><a href="#">travel</a></li>
-				</ul>
-			</div>
-		</div>
-	</section>
-	<!--header end-->
 
-	<!--banner start-->
-	<section class="banner">
-		<div class="wrapper">
-			<img src="images/banner.jpg">
-		</div>
-		
-	</section>
-	<!--banner end-->
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-head">
+    <div class="sidebar-logo">
+      <span>ALEL Capacity</span>
+    </div>
+    <div class="search-box">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="sidebarSearch" placeholder="Search products…">
+    </div>
+  </div>
+  <div class="sidebar-list" id="sidebarList"></div>
+</nav>
 
-	<!--about start-->
-	<section class="about">
-		<div class="wrapper2">
-			<div class="content">
-				<p class="utext">photodiary</p>
-				<h1 class="head">The perfect weekend getaway</h1>
-				<p class="ptext">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>
-				<p id="note" class="utext">Leave a comment</p>
-			</div>
-		</div>
-	</section>
-	<!--about end-->
+<!-- MAIN -->
+<main class="main" id="mainContent">
+  <div class="empty">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+    <p>Select a product from the sidebar to view its capacity data</p>
+  </div>
+</main>
 
-	<!--blog start-->
-	<section class="blog">
-		<div class="wrapper2">
-			<div class="singleitem">
-				<img src="images/1.jpg">
-				<p class="utext">lifestyle</p>
-				<h1 class="head">More than just a music festival </h1>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea</p>
-			</div>
-			<div class="singleitem">
-				<img src="images/2.jpg">
-				<p class="utext">lifestyle</p>
-				<h1 class="head">Life tastes better with coffee</h1>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea</p>
-			</div>
-			<div class="singleitem">
-				<img src="images/3.jpg">
-				<p class="utext">photodiary</p>
-				<h1 class="head">American dream</h1>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris</p>
-			</div>
-			<div class="singleitem">
-				<img src="images/4.jpg">
-				<p class="utext">photodiary</p>
-				<h1 class="head">A day exploring the Alps</h1>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris</p>
-			</div>
-		</div>
-	</section>
-	<!--blog end-->
+<script>
+const SHEETS = [{"name": "() 60W Bracket Light", "product_group": "60 w Bracket light", "item_code": "", "item_name": "", "steps": [{"sl": 1, "step": "Soldering on Circuit Point", "worker": "Marzana", "mp": "1", "rating": "80.0%", "avg_sec": "8.88", "smv": "0.1702", "hourly": "352"}, {"sl": 2, "step": "Input Wire Soldering", "worker": "Lacky", "mp": "1", "rating": "80.0%", "avg_sec": "15.36", "smv": "0.2944", "hourly": "203"}, {"sl": 3, "step": "Soldering on Chip Point & Chip Cutting", "worker": "Akhi", "mp": "1", "rating": "80.0%", "avg_sec": "3.16", "smv": "0.0606", "hourly": "990"}, {"sl": 4, "step": "Chip insert with heat sink", "worker": "Nargis, Peyara, Sumaiya", "mp": "3", "rating": "75.0%", "avg_sec": "29.44", "smv": "0.5643", "hourly": "318"}, {"sl": 5, "step": "Crimpring on heat sink", "worker": "Moriom", "mp": "1", "rating": "70.0%", "avg_sec": "7.68", "smv": "0.1472", "hourly": "407"}, {"sl": 6, "step": "Chip soldering with circuit", "worker": "Afroja,Johora,Sohana", "mp": "3", "rating": "80.0%", "avg_sec": "60.28", "smv": "1.1554", "hourly": "155"}, {"sl": 7, "step": "Diffuser Attach with Heat Sink", "worker": "Aklima", "mp": "1", "rating": "70.0%", "avg_sec": "12.92", "smv": "0.2476", "hourly": "242"}, {"sl": 8, "step": "End Cap Attach", "worker": "Samia", "mp": "2", "rating": "80.0%", "avg_sec": "19.96", "smv": "0.3826", "hourly": "156"}, {"sl": 9, "step": "End cap fixing", "worker": "Rina, Hasina", "mp": "2", "rating": "85.0%", "avg_sec": "21.88", "smv": "0.4194", "hourly": "286"}, {"sl": 10, "step": "End Cap Positioning", "worker": "Nurjahan", "mp": "1", "rating": "70.0%", "avg_sec": "8.28", "smv": "0.1587", "hourly": "378"}, {"sl": 11, "step": "End cap screw with Heat Sink by M/C", "worker": "Ayesha", "mp": "1", "rating": "80.0%", "avg_sec": "8.28", "smv": "0.1587", "hourly": "378"}], "summary": {"smv": "3.759", "hourly_capacity": "155", "manpower": "17", "daily_capacity": "1,246", "rating": "77.3%", "no_of_steps": "14"}}, {"name": "() 60W Bracket light Packing", "product_group": "60 w Bracket light Packing", "item_code": "", "item_name": "", "steps": [{"sl": 1, "step": "Cleaning", "worker": "Rotna rani", "mp": "1", "rating": "80.0%", "avg_sec": "14.36", "smv": "0.2752", "hourly": "217"}, {"sl": 2, "step": "Laser on end cap", "worker": "Bithi Akter", "mp": "1", "rating": "80.0%", "avg_sec": "11.4", "smv": "0.2185", "hourly": "274"}, {"sl": 3, "step": "Single Pack Joining by Sticker", "worker": "Asif, Nipa, Asif", "mp": "3", "rating": "80.0%", "avg_sec": "5.4", "smv": "0.1035", "hourly": "1,739"}, {"sl": 4, "step": "Single Pack folding (One side)", "worker": "Sompa Akter", "mp": "1", "rating": "80.0%", "avg_sec": "14.08", "smv": "0.2699", "hourly": "222"}, {"sl": 5, "step": "Warranty Card Attach with body", "worker": "Roksana", "mp": "1", "rating": "75.0%", "avg_sec": "9.76", "smv": "0.1871", "hourly": "320"}, {"sl": 6, "step": "Insert single poly with fixing screw", "worker": "Sumaiya, Shawon", "mp": "2", "rating": "80.0%", "avg_sec": "9.74", "smv": "0.1867", "hourly": "642"}, {"sl": 7, "step": "Bracket Insert in Single Pack", "worker": "Resma, Shehrin", "mp": "2", "rating": "80.0%", "avg_sec": "7.9", "smv": "0.1514", "hourly": "792"}, {"sl": 8, "step": "Tape Attach with Single Pack", "worker": "Niju", "mp": "1", "rating": "80.0%", "avg_sec": "1.68", "smv": "0.0322", "hourly": "1,863"}, {"sl": 9, "step": "Master carton", "worker": "Rehna, Orchona", "mp": "2", "rating": "70.0%", "avg_sec": "19.3", "smv": "0.3699", "hourly": "324"}, {"sl": 10, "step": "Line QC", "worker": "Lubna", "mp": "1", "rating": "75.0%", "avg_sec": "7.32", "smv": "0.1403", "hourly": "427"}], "summary": {"smv": "1.935", "hourly_capacity": "217", "manpower": "15", "daily_capacity": "1,743", "rating": "78.0%", "no_of_steps": ""}}, {"name": "Lumigold 5 Pin Multi Socket", "product_group": "", "item_code": "", "item_name": "Lumigold 5 Pin Multi Socket", "steps": [{"sl": 1, "step": "Back Sheet + N Polar", "worker": "Papiya", "mp": "1", "rating": "75.0%", "avg_sec": "5.92", "smv": "0.1135", "hourly": "528"}, {"sl": 2, "step": "Back Sheet + L Polar", "worker": "Jahanara", "mp": "1", "rating": "75.0%", "avg_sec": "8.48", "smv": "0.1625", "hourly": "369"}, {"sl": 3, "step": "E Polar + Tricon Part", "worker": "Soniya, Hanufa", "mp": "2", "rating": "80.0%", "avg_sec": "9.8", "smv": "0.1878", "hourly": "638"}, {"sl": 4, "step": "Stamping Part", "worker": "Moushumi", "mp": "1", "rating": "80.0%", "avg_sec": "7.92", "smv": "0.1518", "hourly": "395"}, {"sl": 5, "step": "Pressure Plate + Neon Light", "worker": "Sima, Tamanna", "mp": "2", "rating": "75.0%", "avg_sec": "10.8", "smv": "0.207", "hourly": "579"}, {"sl": 6, "step": "Safety Door + Shutter door in Small Cover", "worker": "Yeasmin, Mim, Mukta, Doli", "mp": "4", "rating": "75.0%", "avg_sec": "22.0", "smv": "0.4217", "hourly": "569"}, {"sl": 7, "step": "Bullet + Spring + Button", "worker": "Noyon, Nabiya", "mp": "1", "rating": "70.0%", "avg_sec": "7.64", "smv": "0.1464", "hourly": "409"}, {"sl": 8, "step": "Button Attach", "worker": "Juma", "mp": "1", "rating": "80.0%", "avg_sec": "5.36", "smv": "0.1027", "hourly": "584"}, {"sl": 9, "step": "Pressure Plate adjust with back Part", "worker": "Ashamoni", "mp": "1", "rating": "80.0%", "avg_sec": "8.48", "smv": "0.1625", "hourly": "369"}, {"sl": 10, "step": "Small Cover + Metal Plate", "worker": "Soniya", "mp": "1", "rating": "75.0%", "avg_sec": "10.24", "smv": "0.1963", "hourly": "305"}, {"sl": 11, "step": "Light Indicator + Screw Placement", "worker": "Jusna", "mp": "1", "rating": "70.0%", "avg_sec": "7.76", "smv": "0.1487", "hourly": "403"}, {"sl": 12, "step": "Screwing", "worker": "lima", "mp": "1", "rating": "80.0%", "avg_sec": "4.56", "smv": "0.0874", "hourly": "686"}, {"sl": 13, "step": "Full Cover", "worker": "mim", "mp": "1", "rating": "80.0%", "avg_sec": "3.72", "smv": "0.0713", "hourly": "841"}, {"sl": 14, "step": "QC", "worker": "Sajid", "mp": "1", "rating": "80.0%", "avg_sec": "8.04", "smv": "0.1541", "hourly": "389"}, {"sl": 15, "step": "QC", "worker": "Afsana", "mp": "1", "rating": "80.0%", "avg_sec": "4.2", "smv": "0.0805", "hourly": "745"}], "summary": {"smv": "2.394", "hourly_capacity": "305", "manpower": "20", "daily_capacity": "2,445", "rating": "77.0%", "no_of_steps": ""}}, {"name": "18W ACDC", "product_group": "", "item_code": "", "item_name": "18W AC/DC", "steps": [{"sl": 1, "step": "Circuit Attach with Chip", "worker": "Nargis, Marzan", "mp": "2", "rating": "80.0%", "avg_sec": "10.92", "smv": "0.2093", "hourly": "573"}, {"sl": 2, "step": "Chip Detach from Plate", "worker": "Sufiya", "mp": "1", "rating": "70.0%", "avg_sec": "8.08", "smv": "0.1549", "hourly": "387"}, {"sl": 3, "step": "Chip attach with Housing", "worker": "Afroja, Nurjahan", "mp": "2", "rating": "75.0%", "avg_sec": "17.4", "smv": "0.3335", "hourly": "359"}, {"sl": 4, "step": "Base Plate attach with Housing", "worker": "Ayesha", "mp": "1", "rating": "80.0%", "avg_sec": "8.32", "smv": "0.1595", "hourly": "376"}, {"sl": 5, "step": "Base Screwing", "worker": "Shwapna, Nazma", "mp": "2", "rating": "80.0%", "avg_sec": "9.12", "smv": "0.1748", "hourly": "686"}, {"sl": 6, "step": "Heat Sink Attach", "worker": "Lakhi", "mp": "1", "rating": "85.0%", "avg_sec": "8.32", "smv": "0.1595", "hourly": "376"}, {"sl": 7, "step": "Gluing on Chip with Heat Sink", "worker": "Peyara", "mp": "1", "rating": "90.0%", "avg_sec": "7.2", "smv": "0.138", "hourly": "434"}, {"sl": 8, "step": "Chip Screwing", "worker": "Hasina, Sumaiya", "mp": "2", "rating": "85.0%", "avg_sec": "21.16", "smv": "0.4056", "hourly": "295"}, {"sl": 9, "step": "Base Cap Bending & attach with Housing", "worker": "Jahura, Genious", "mp": "2", "rating": "75.0%", "avg_sec": "11.88", "smv": "0.2277", "hourly": "527"}, {"sl": 10, "step": "Soldering on Base Cap", "worker": "Akhi, Kajol", "mp": "2", "rating": "80.0%", "avg_sec": "11.8", "smv": "0.2262", "hourly": "530"}, {"sl": 11, "step": "QC Body Check", "worker": "Samia", "mp": "1", "rating": "90.0%", "avg_sec": "4.96", "smv": "0.0951", "hourly": "631"}, {"sl": 12, "step": "QC Electric Check", "worker": "Sajol", "mp": "1", "rating": "90.0%", "avg_sec": "4.52", "smv": "0.0866", "hourly": "692"}, {"sl": 13, "step": "Crimping", "worker": "Amena", "mp": "1", "rating": "90.0%", "avg_sec": "7.12", "smv": "0.1365", "hourly": "439"}, {"sl": 14, "step": "Gluing", "worker": "Rina", "mp": "1", "rating": "85.0%", "avg_sec": "8.96", "smv": "0.1717", "hourly": "349"}, {"sl": 15, "step": "Deffuser attach", "worker": "Ashura", "mp": "1", "rating": "85.0%", "avg_sec": "5.68", "smv": "0.1089", "hourly": "551"}, {"sl": 16, "step": "Cleaning", "worker": "Rotna", "mp": "1", "rating": "75.0%", "avg_sec": "15.12", "smv": "0.2898", "hourly": ""}, {"sl": 17, "step": "Housing Pressing (Extra Work)", "worker": "Ashraf", "mp": "1", "rating": "80.0%", "avg_sec": "7.4", "smv": "0.1418", "hourly": "423"}], "summary": {"smv": "3.219", "hourly_capacity": "295", "manpower": "23", "daily_capacity": "2,367", "rating": "82.1%", "no_of_steps": ""}}, {"name": "AC 5 W Assembly", "product_group": "", "item_code": "", "item_name": "AC 5W Assembly", "steps": [{"sl": 1, "step": "Capacitor attach & Chip Detach from Plate", "worker": "Moriom", "mp": "1", "rating": "90.0%", "avg_sec": "3.28", "smv": "0.0629", "hourly": "954"}, {"sl": 2, "step": "Registor attach with Chip", "worker": "Sathi", "mp": "1", "rating": "85.0%", "avg_sec": "2.92", "smv": "0.056", "hourly": "1,072"}, {"sl": 3, "step": "Chip Install to Housing", "worker": "Sayma", "mp": "1", "rating": "85.0%", "avg_sec": "3.16", "smv": "0.0606", "hourly": "990"}, {"sl": 4, "step": "Base Cap Install", "worker": "Sumaiya", "mp": "1", "rating": "85.0%", "avg_sec": "4.48", "smv": "0.0859", "hourly": "698"}, {"sl": 5, "step": "Tip Install on Base Cap", "worker": "Nasrin", "mp": "1", "rating": "85.0%", "avg_sec": "5.24", "smv": "0.1004", "hourly": "597"}, {"sl": 6, "step": "In Line QC", "worker": "Jesmin", "mp": "1", "rating": "90.0%", "avg_sec": "2.56", "smv": "0.0491", "hourly": "1,222"}, {"sl": 7, "step": "Crimping by M/C", "worker": "Pansu", "mp": "1", "rating": "85.0%", "avg_sec": "5.16", "smv": "0.0989", "hourly": "606"}, {"sl": 8, "step": "Deffuser Attach with Housing", "worker": "Subarna, Nasrin", "mp": "2", "rating": "80.0%", "avg_sec": "9.6", "smv": "0.184", "hourly": "652"}], "summary": {"smv": "0.698", "hourly_capacity": "597", "manpower": "9", "daily_capacity": "4,779", "rating": "85.6%", "no_of_steps": ""}}, {"name": "Piano Fuse", "product_group": "", "item_code": "", "item_name": "Piano Fuse", "steps": [{"sl": 1, "step": "Bush Insert in Backpart", "worker": "Sabina", "mp": "1", "rating": "85.0%", "avg_sec": "8.68", "smv": "0.1664", "hourly": "360"}, {"sl": 2, "step": "Polar Insert in Backpart", "worker": "Hima", "mp": "1", "rating": "80.0%", "avg_sec": "5.08", "smv": "0.0974", "hourly": "616"}, {"sl": 3, "step": "Polar Screwing with Backpart", "worker": "Laboni, Mukta", "mp": "2", "rating": "75.0%", "avg_sec": "10.84", "smv": "0.2078", "hourly": "577"}, {"sl": 4, "step": "Bush Screwing with middlepart", "worker": "Pinky, Asma", "mp": "2", "rating": "75.0%", "avg_sec": "23.24", "smv": "0.4454", "hourly": "269"}, {"sl": 5, "step": "Middle Part Screwing with Fuse/Front Part", "worker": "Jesmin", "mp": "1", "rating": "80.0%", "avg_sec": "8.8", "smv": "0.1687", "hourly": "355"}, {"sl": 6, "step": "Terminal Screw attach with bush of middle part", "worker": "Taslima", "mp": "1", "rating": "80.0%", "avg_sec": "8.88", "smv": "0.1702", "hourly": "352"}, {"sl": 7, "step": "Terminal Screw attach with bush of back part", "worker": "Mahfuza", "mp": "1", "rating": "80.0%", "avg_sec": "10.2", "smv": "0.1955", "hourly": "306"}, {"sl": 8, "step": "Nut & Bolt Attach with Backpart", "worker": "Rehana", "mp": "2", "rating": "75.0%", "avg_sec": "20.12", "smv": "0.3856", "hourly": "311"}, {"sl": 9, "step": "Frame (White) attach with back part", "worker": "Shapla", "mp": "1", "rating": "80.0%", "avg_sec": "3.8", "smv": "0.2591", "hourly": "231"}, {"sl": 10, "step": "In Line QC", "worker": "Touhida", "mp": "1", "rating": "80.0%", "avg_sec": "5.76", "smv": "0.1104", "hourly": "543"}, {"sl": 11, "step": "Single Poly", "worker": "Sultana", "mp": "1", "rating": "80.0%", "avg_sec": "5.0", "smv": "0.0958", "hourly": "626"}, {"sl": 12, "step": "Dozen Pack", "worker": "Majeda", "mp": "1", "rating": "80.0%", "avg_sec": "8.88", "smv": "0.1702", "hourly": "352"}], "summary": {"smv": "2.473", "hourly_capacity": "231", "manpower": "15", "daily_capacity": "1,852", "rating": "79.2%", "no_of_steps": ""}}, {"name": "() Lumigold DP", "product_group": "", "item_code": "", "item_name": "Lumigold 5 Pin Multi Socket", "steps": [{"sl": 1, "step": "Backpart + Metal Part", "worker": "Lipi", "mp": "1", "rating": "80.0%", "avg_sec": "5.45", "smv": "0.2049", "hourly": "292"}, {"sl": 2, "step": "Backpart + Metal Part with Silver Tip", "worker": "", "mp": "", "rating": "", "avg_sec": "5.24", "smv": "", "hourly": ""}, {"sl": 3, "step": "Stamping Part (2 Piece)", "worker": "Bobita", "mp": "1", "rating": "70.0%", "avg_sec": "8.2", "smv": "0.1572", "hourly": "381"}, {"sl": 4, "step": "Bullet + Spring", "worker": "Onika Rani", "mp": "1", "rating": "80.0%", "avg_sec": "3.88", "smv": "0.2361", "hourly": "254"}, {"sl": 5, "step": "Bullet insert in Button", "worker": "", "mp": "", "rating": "", "avg_sec": "8.44", "smv": "", "hourly": ""}, {"sl": 6, "step": "Neon Light with small cover", "worker": "Lipi", "mp": "1", "rating": "80.0%", "avg_sec": "7.88", "smv": "0.151", "hourly": "397"}, {"sl": 7, "step": "Button attach with Backpart", "worker": "Shelina", "mp": "1", "rating": "85.0%", "avg_sec": "7.28", "smv": "0.1395", "hourly": "430"}, {"sl": 8, "step": "Small Cover attach with Backpart", "worker": "Shapla, Asma", "mp": "2", "rating": "85.0%", "avg_sec": "13.04", "smv": "0.2499", "hourly": "480"}, {"sl": 9, "step": "Terminal Screw (4 Piece)", "worker": "Salma, Shilpa,", "mp": "2", "rating": "90.0%", "avg_sec": "16.8", "smv": "0.322", "hourly": "372"}, {"sl": 10, "step": "E Polar attach & Screwing", "worker": "Ayesha", "mp": "1", "rating": "85.0%", "avg_sec": "8.96", "smv": "0.1717", "hourly": "349"}, {"sl": 11, "step": "Light indicator & metal part attach", "worker": "Abrina", "mp": "1", "rating": "85.0%", "avg_sec": "14.6", "smv": "0.2798", "hourly": "214"}, {"sl": 12, "step": "Full Cover & Check", "worker": "Anjona", "mp": "1", "rating": "90.0%", "avg_sec": "5.16", "smv": "0.0989", "hourly": "606"}, {"sl": 13, "step": "In Line QC", "worker": "Mithila", "mp": "1", "rating": "90.0%", "avg_sec": "4.2", "smv": "0.0805", "hourly": "745"}], "summary": {"smv": "2.092", "hourly_capacity": "214", "manpower": "13", "daily_capacity": "1,715", "rating": "83.6%", "no_of_steps": ""}}, {"name": "Ceiling Rose", "product_group": "", "item_code": "", "item_name": "Ceiling Rose", "steps": [{"sl": 1, "step": "Screw attach with Bush", "worker": "Rokeya, Sathi, Doli", "mp": "3", "rating": "70.0%", "avg_sec": "8.24", "smv": "0.1579", "hourly": "1,139"}, {"sl": 2, "step": "Bush Terminal Screwing (M/C)", "worker": "Jahanara", "mp": "1", "rating": "80.0%", "avg_sec": "3.64", "smv": "0.0698", "hourly": "860"}, {"sl": 3, "step": "Bush Attach with Panel", "worker": "Halima, Nabia, Asha", "mp": "3", "rating": "80.0%", "avg_sec": "17.4", "smv": "0.3335", "hourly": "539"}, {"sl": 4, "step": "Flash Cutting", "worker": "Shahida", "mp": "1", "rating": "80.0%", "avg_sec": "3.56", "smv": "0.0682", "hourly": "879"}, {"sl": 5, "step": "Cover attach with Panel", "worker": "Nayon", "mp": "1", "rating": "80.0%", "avg_sec": "4.12", "smv": "0.079", "hourly": "759"}, {"sl": 6, "step": "Single Poly", "worker": "Kohinur", "mp": "1", "rating": "80.0%", "avg_sec": "9.28", "smv": "0.1779", "hourly": "337"}, {"sl": 7, "step": "Single Poly Seal & Dozen Pack", "worker": "Fatema", "mp": "1", "rating": "80.0%", "avg_sec": "5.72", "smv": "0.1096", "hourly": "547"}], "summary": {"smv": "0.996", "hourly_capacity": "337", "manpower": "11", "daily_capacity": "2,698", "rating": "78.6%", "no_of_steps": ""}}, {"name": "2 Pin Plug", "product_group": "Accessories", "item_code": "", "item_name": "2 Pin Plug", "steps": [{"sl": 1, "step": "Pin attach with Plastic Base", "worker": "Shorna", "mp": "1", "rating": "75.0%", "avg_sec": "5.76", "smv": "0.1104", "hourly": "543"}, {"sl": 2, "step": "Pin hammering", "worker": "Shornali", "mp": "1", "rating": "80.0%", "avg_sec": "5.84", "smv": "0.1119", "hourly": "536"}, {"sl": 3, "step": "Terminal Screw attach", "worker": "Tarmin", "mp": "1", "rating": "80.0%", "avg_sec": "7.28", "smv": "0.1395", "hourly": "430"}, {"sl": 4, "step": "Cable Lock attach with screw", "worker": "Parvin", "mp": "1", "rating": "80.0%", "avg_sec": "7.44", "smv": "0.1426", "hourly": "420"}, {"sl": 5, "step": "Screwing by M/C", "worker": "Jakia", "mp": "1", "rating": "75.0%", "avg_sec": "7.48", "smv": "0.1434", "hourly": "418"}, {"sl": 6, "step": "Line QC", "worker": "Rafiza", "mp": "1", "rating": "80.0%", "avg_sec": "4.12", "smv": "0.079", "hourly": "759"}, {"sl": 7, "step": "Flash Cutting", "worker": "Moushumi", "mp": "1", "rating": "75.0%", "avg_sec": "10.72", "smv": "0.2055", "hourly": "292"}, {"sl": 8, "step": "Attach Body", "worker": "Josna", "mp": "1", "rating": "80.0%", "avg_sec": "8.4", "smv": "0.161", "hourly": "372"}, {"sl": 9, "step": "Body Screwing with Plastic Base", "worker": "Sadia", "mp": "1", "rating": "80.0%", "avg_sec": "5.0", "smv": "0.0958", "hourly": "626"}, {"sl": 10, "step": "Single Poly", "worker": "Yeasmin", "mp": "1", "rating": "70.0%", "avg_sec": "10.76", "smv": "0.2062", "hourly": "290"}, {"sl": 11, "step": "Seal", "worker": "Monira", "mp": "1", "rating": "80.0%", "avg_sec": "14.28", "smv": "0.2737", "hourly": "219"}, {"sl": 12, "step": "Dozen Pack", "worker": "", "mp": "", "rating": "", "avg_sec": "", "smv": "", "hourly": ""}], "summary": {"smv": "1.669", "hourly_capacity": "219", "manpower": "11", "daily_capacity": "1,753", "rating": "77.7%", "no_of_steps": ""}}, {"name": "6W ACDC Process", "product_group": "6W AC/DC", "item_code": "", "item_name": "", "steps": [{"sl": 1, "step": "Soldering on Chip", "worker": "Tania", "mp": "1", "rating": "80.0%", "avg_sec": "7.13", "smv": "0.158", "hourly": "379"}, {"sl": 2, "step": "Detach chip from plate", "worker": "", "mp": "", "rating": "80.0%", "avg_sec": "1.11", "smv": "", "hourly": ""}, {"sl": 3, "step": "Base 1,2 attach with chip", "worker": "Jusna", "mp": "1", "rating": "80.0%", "avg_sec": "7.32", "smv": "0.1403", "hourly": "427"}, {"sl": 4, "step": "circuit attach with base(Screwing)", "worker": "Shukoron", "mp": "1", "rating": "80.0%", "avg_sec": "12.64", "smv": "0.2423", "hourly": "247"}, {"sl": 5, "step": "Circuit soldering with chip", "worker": "Farzana", "mp": "1", "rating": "80.0%", "avg_sec": "10.84", "smv": "0.2078", "hourly": "288"}, {"sl": 6, "step": "Battery attach", "worker": "Shaheena", "mp": "1", "rating": "80.0%", "avg_sec": "10.8", "smv": "0.207", "hourly": "289"}, {"sl": 7, "step": "Housing installation", "worker": "Komola,Shimu,Sheuly", "mp": "3", "rating": "70.0%", "avg_sec": "21.96", "smv": "0.4209", "hourly": "427"}, {"sl": 8, "step": "Base cap attach", "worker": "Lucky, Nanjiba", "mp": "2", "rating": "80.0%", "avg_sec": "20.6", "smv": "0.3948", "hourly": "303"}, {"sl": 9, "step": "Soldering on basecap", "worker": "Sonia", "mp": "2", "rating": "80.0%", "avg_sec": "4.68", "smv": "0.0897", "hourly": "1,337"}, {"sl": 10, "step": "Inline QC", "worker": "Shourov", "mp": "1", "rating": "80.0%", "avg_sec": "2.76", "smv": "0.0529", "hourly": "1,134"}, {"sl": 11, "step": "Crimping", "worker": "Rumpa", "mp": "1", "rating": "80.0%", "avg_sec": "2.64", "smv": "0.0506", "hourly": "1,185"}, {"sl": 12, "step": "Diffuser attachment", "worker": "Shima,Shumi", "mp": "2", "rating": "80.0%", "avg_sec": "7.48", "smv": "0.1434", "hourly": "837"}], "summary": {"smv": "2.108", "hourly_capacity": "247", "manpower": "16", "daily_capacity": "1,981", "rating": "79.2%", "no_of_steps": ""}}, {"name": "Line Balancing 6W ACDC Process", "product_group": "6W AC/DC", "item_code": "", "item_name": "", "steps": [{"sl": 1, "step": "Soldering on Chip", "worker": "Nargis (9 Piece Chip have on Single Plate)", "mp": "1", "rating": "80.0%", "avg_sec": "7.13", "smv": "0.158", "hourly": "379"}, {"sl": 2, "step": "Base 1,2 attach with chip", "worker": "Ayesha", "mp": "1", "rating": "75.0%", "avg_sec": "7.32", "smv": "0.1403", "hourly": "427"}, {"sl": 3, "step": "Chip attach with Base", "worker": "Sufiya", "mp": "1", "rating": "75.0%", "avg_sec": "7.36", "smv": "0.1411", "hourly": "425"}, {"sl": 4, "step": "circuit attach with base(Screwing)", "worker": "Hasina", "mp": "2", "rating": "80.0%", "avg_sec": "12.64", "smv": "0.2423", "hourly": "495"}, {"sl": 5, "step": "Circuit soldering with chip", "worker": "Marjiya, Afroza", "mp": "3", "rating": "75.0%", "avg_sec": "10.84", "smv": "0.2078", "hourly": "433"}, {"sl": 6, "step": "Battery attach", "worker": "Sumaiya", "mp": "", "rating": "80.0%", "avg_sec": "10.8", "smv": "0.207", "hourly": ""}, {"sl": 7, "step": "Housing installation", "worker": "Nurjahan, Shopna, Peyara", "mp": "3", "rating": "80.0%", "avg_sec": "24.48", "smv": "0.4692", "hourly": "383"}, {"sl": 8, "step": "Base cap attach", "worker": "Moriom", "mp": "1", "rating": "85.0%", "avg_sec": "10.08", "smv": "0.1932", "hourly": "310"}, {"sl": 9, "step": "Soldering on basecap", "worker": "Akhi, Kajol", "mp": "2", "rating": "80.0%", "avg_sec": "15.92", "smv": "0.3051", "hourly": "393"}, {"sl": 10, "step": "Inline QC", "worker": "", "mp": "1", "rating": "75.0%", "avg_sec": "2.76", "smv": "0.0529", "hourly": "1,134"}, {"sl": 11, "step": "Crimping", "worker": "Aklima", "mp": "1", "rating": "80.0%", "avg_sec": "2.64", "smv": "0.0506", "hourly": "549"}, {"sl": 12, "step": "Diffuser attachment", "worker": "Rina", "mp": "1", "rating": "80.0%", "avg_sec": "8.76", "smv": "0.1679", "hourly": ""}], "summary": {"smv": "2.335", "hourly_capacity": "310", "manpower": "17", "daily_capacity": "2,484", "rating": "78.8%", "no_of_steps": ""}}, {"name": "6W ACDC Packing", "product_group": "6W AC/DC", "item_code": "", "item_name": "", "steps": [{"sl": 1, "step": "Warrenty Card printing", "worker": "Rafiq", "mp": "1", "rating": "", "avg_sec": "1.16", "smv": "0.0222", "hourly": "2,698"}, {"sl": 2, "step": "Light Cleaning", "worker": "Shilpi", "mp": "1", "rating": "", "avg_sec": "1.8", "smv": "0.0345", "hourly": "1,739"}, {"sl": 3, "step": "Inline QC", "worker": "Anu", "mp": "1", "rating": "", "avg_sec": "1.84", "smv": "0.0353", "hourly": "1,701"}, {"sl": 4, "step": "Zet Ink print on body", "worker": "Chumki", "mp": "1", "rating": "", "avg_sec": "3.24", "smv": "0.0621", "hourly": "966"}, {"sl": 5, "step": "Hologram Attach", "worker": "Zareen", "mp": "1", "rating": "", "avg_sec": "2.52", "smv": "0.0483", "hourly": "1,242"}, {"sl": 6, "step": "Supporting Board attach", "worker": "Naznin", "mp": "1", "rating": "", "avg_sec": "2.56", "smv": "0.0491", "hourly": "1,222"}, {"sl": 7, "step": "SKU Marking on packet", "worker": "Sumaiya", "mp": "1", "rating": "", "avg_sec": "1.76", "smv": "0.0337", "hourly": "1,778"}, {"sl": 8, "step": "Packet folding", "worker": "Shalomi", "mp": "1", "rating": "", "avg_sec": "5.24", "smv": "0.1004", "hourly": "597"}, {"sl": 9, "step": "Light Insert in single packet", "worker": "Ayesha", "mp": "1", "rating": "", "avg_sec": "4.36", "smv": "0.0836", "hourly": "717"}, {"sl": 10, "step": "single packet closing", "worker": "Urmi", "mp": "1", "rating": "", "avg_sec": "3.6", "smv": "0.069", "hourly": "869"}, {"sl": 11, "step": "Master Pack one side fold and tape", "worker": "Bristy", "mp": "1", "rating": "", "avg_sec": "4.08", "smv": "0.0782", "hourly": "767"}, {"sl": 12, "step": "Packaged light insertion in master Pack (24pcs)", "worker": "Moyna", "mp": "1", "rating": "", "avg_sec": "4.72", "smv": "0.0905", "hourly": "663"}, {"sl": 13, "step": "Master pack QC", "worker": "Arafat", "mp": "1", "rating": "", "avg_sec": "8.96", "smv": "0.1717", "hourly": "349"}, {"sl": 14, "step": "Master Pack closing and bailing", "worker": "Sumaiya", "mp": "1", "rating": "", "avg_sec": "5.08", "smv": "0.0974", "hourly": "616"}], "summary": {"smv": "0.976", "hourly_capacity": "349", "manpower": "14", "daily_capacity": "2,795", "rating": "", "no_of_steps": ""}}, {"name": "Concealed Panel 12 W", "product_group": "", "item_code": "", "item_name": "Concealed Panel 12 W", "steps": [{"sl": 1, "step": "Bonth side tape attach with Chip", "worker": "Aklima", "mp": "1", "rating": "80.0%", "avg_sec": "3.92", "smv": "0.0751", "hourly": "798"}, {"sl": 2, "step": "Chip attach with body", "worker": "Afroza", "mp": "1", "rating": "85.0%", "avg_sec": "3.33", "smv": "0.0637", "hourly": "941"}, {"sl": 3, "step": "Input Line soldering with chip", "worker": "Marzana", "mp": "1", "rating": "85.0%", "avg_sec": "3.26", "smv": "0.0624", "hourly": "961"}, {"sl": 4, "step": "A,B,C Glass attach with Back panel", "worker": "Lucky", "mp": "1", "rating": "85.0%", "avg_sec": "3.15", "smv": "0.0603", "hourly": "994"}, {"sl": 5, "step": "Foam attach with back pannel", "worker": "Morium", "mp": "1", "rating": "80.0%", "avg_sec": "2.75", "smv": "0.0527", "hourly": "1,139"}, {"sl": 6, "step": "Back panel attach awith body", "worker": "Morium", "mp": "1", "rating": "70.0%", "avg_sec": "1.46", "smv": "0.0279", "hourly": "2,151"}, {"sl": 7, "step": "Back panel screwing (6 Pes)", "worker": "Akhi, Sabina", "mp": "2", "rating": "80.0%", "avg_sec": "7.34", "smv": "0.1407", "hourly": "852"}, {"sl": 8, "step": "Wire Soldering with circuit", "worker": "Nargis", "mp": "1", "rating": "80.0%", "avg_sec": "12.28", "smv": "0.2354", "hourly": "254"}, {"sl": 9, "step": "Input panel soldering with circuit", "worker": "Peyara", "mp": "1", "rating": "80.0%", "avg_sec": "11.52", "smv": "0.2208", "hourly": "271"}, {"sl": 10, "step": "Driver box attach with circuit", "worker": "Peyara", "mp": "1", "rating": "80.0%", "avg_sec": "2.04", "smv": "0.0391", "hourly": "1,534"}, {"sl": 11, "step": "Driver box install with Panel", "worker": "Rina", "mp": "1", "rating": "80.0%", "avg_sec": "1.49", "smv": "0.0286", "hourly": "2,096"}, {"sl": 12, "step": "In line QC", "worker": "Sameeya", "mp": "1", "rating": "85.0%", "avg_sec": "2.75", "smv": "0.0528", "hourly": "1,137"}, {"sl": 13, "step": "Spring Adjust with Panel", "worker": "Nurjahan,Lima", "mp": "2", "rating": "75.0%", "avg_sec": "3.51", "smv": "0.0673", "hourly": "1,783"}], "summary": {"smv": "1.127", "hourly_capacity": "254", "manpower": "15", "daily_capacity": "2,039", "rating": "80.4%", "no_of_steps": ""}}, {"name": "() pendant holder", "product_group": "", "item_code": "", "item_name": "Pendant holder", "steps": [{"sl": 1, "step": "Screw Insert in Terminal", "worker": "Rokeya", "mp": "1", "rating": "60.0%", "avg_sec": "8.12", "smv": "0.1556", "hourly": "385"}, {"sl": 2, "step": "Screwing by M/C", "worker": "Fatema", "mp": "1", "rating": "80.0%", "avg_sec": "2.96", "smv": "0.0567", "hourly": "1,057"}, {"sl": 3, "step": "Pin & Spring Insert in Body", "worker": "Sathi", "mp": "1", "rating": "95.0%", "avg_sec": "9.04", "smv": "0.1733", "hourly": "346"}, {"sl": 4, "step": "Bush Insert & Lock Install", "worker": "Halima", "mp": "1", "rating": "80.0%", "avg_sec": "10.12", "smv": "0.194", "hourly": "309"}, {"sl": 5, "step": "Metal Part & Screw Insert", "worker": "Shahida", "mp": "1", "rating": "80.0%", "avg_sec": "6.8", "smv": "0.1303", "hourly": "460"}, {"sl": 6, "step": "Screwing in Metal Part", "worker": "Saimun", "mp": "1", "rating": "90.0%", "avg_sec": "11.32", "smv": "0.217", "hourly": "276"}, {"sl": 7, "step": "In Line QC", "worker": "Sifat", "mp": "1", "rating": "80.0%", "avg_sec": "4.52", "smv": "0.0866", "hourly": "692"}, {"sl": 8, "step": "Top Part attach", "worker": "Kohinur", "mp": "1", "rating": "80.0%", "avg_sec": "7.64", "smv": "0.1464", "hourly": "409"}, {"sl": 9, "step": "Single Poly", "worker": "Muskan", "mp": "1", "rating": "80.0%", "avg_sec": "7.24", "smv": "0.1388", "hourly": "432"}, {"sl": 10, "step": "Sealing", "worker": "Tahmina", "mp": "1", "rating": "90.0%", "avg_sec": "4.6", "smv": "0.197", "hourly": "304"}, {"sl": 11, "step": "Dozen Pack & Weighting", "worker": "", "mp": "", "rating": "", "avg_sec": "5.68", "smv": "", "hourly": ""}], "summary": {"smv": "1.496", "hourly_capacity": "276", "manpower": "10", "daily_capacity": "2,212", "rating": "81.5%", "no_of_steps": ""}}, {"name": "() Lumigold Four Gang Switch", "product_group": "", "item_code": "", "item_name": "Concealed Panel 12 W", "steps": [], "summary": {"smv": "0.0", "hourly_capacity": "", "manpower": "0", "daily_capacity": "", "rating": "", "no_of_steps": ""}}, {"name": "() MCB - SP 32A", "product_group": "", "item_code": "", "item_name": "MCB SP 32A", "steps": [], "summary": {"smv": "", "hourly_capacity": "", "manpower": "", "daily_capacity": "", "rating": "", "no_of_steps": ""}}, {"name": "() Exhaust Fan 10 inch", "product_group": "", "item_code": "", "item_name": "Exhaust Fan 10 Inch", "steps": [{"sl": 1, "step": "Backpart and Motor Installation", "worker": "", "mp": "1", "rating": "80.0%", "avg_sec": "11.0", "smv": "0.2108", "hourly": "284"}, {"sl": 2, "step": "Motor Screwing (4 pieces)", "worker": "Akhi", "mp": "1", "rating": "70.0%", "avg_sec": "17.2", "smv": "0.3297", "hourly": "182"}, {"sl": 3, "step": "Motor Wire adjust with frame", "worker": "Hira", "mp": "1", "rating": "85.0%", "avg_sec": "18.2", "smv": "0.3488", "hourly": "172"}, {"sl": 4, "step": "Input cable lock with backpart", "worker": "Riya", "mp": "1", "rating": "85.0%", "avg_sec": "24.8", "smv": "0.4753", "hourly": "126"}, {"sl": 5, "step": "capacitor and wire joint", "worker": "Tamima, Shayla", "mp": "2", "rating": "85.0%", "avg_sec": "28.2", "smv": "0.5405", "hourly": "222"}, {"sl": 6, "step": "Wire Protector install", "worker": "Khusbu", "mp": "1", "rating": "85.0%", "avg_sec": "16.8", "smv": "0.322", "hourly": "186"}, {"sl": 7, "step": "capactor box adjust", "worker": "Shivina", "mp": "1", "rating": "90.0%", "avg_sec": "10.0", "smv": "0.1917", "hourly": "313"}, {"sl": 8, "step": "shutter installation", "worker": "Shima", "mp": "1", "rating": "85.0%", "avg_sec": "34.6", "smv": "0.6632", "hourly": "90"}, {"sl": 9, "step": "Blade installation with lock", "worker": "Anowara", "mp": "1", "rating": "85.0%", "avg_sec": "22.0", "smv": "0.4217", "hourly": "142"}, {"sl": 10, "step": "cleaning and new cover install", "worker": "Nasima", "mp": "1", "rating": "85.0%", "avg_sec": "11.0", "smv": "0.2108", "hourly": "284"}, {"sl": 11, "step": "In Line QC", "worker": "Afroza", "mp": "1", "rating": "85.0%", "avg_sec": "22.2", "smv": "0.4255", "hourly": "141"}, {"sl": 12, "step": "Single poly and warrenty card insertion", "worker": "Kulsum", "mp": "1", "rating": "85.0%", "avg_sec": "16.2", "smv": "0.3105", "hourly": "193"}, {"sl": 13, "step": "Single pack packaging", "worker": "Samia", "mp": "1", "rating": "85.0%", "avg_sec": "17.8", "smv": "0.3412", "hourly": "175"}, {"sl": 14, "step": "Single pack taping and ready", "worker": "Shourov", "mp": "1", "rating": "80.0%", "avg_sec": "14.6", "smv": "0.2798", "hourly": "214"}, {"sl": 15, "step": "Bailing", "worker": "Abdur", "mp": "1", "rating": "80.0%", "avg_sec": "27.2", "smv": "0.5213", "hourly": "115"}, {"sl": 16, "step": "Wire tip cutting", "worker": "Bristy, Shilpi", "mp": "2", "rating": "90.0%", "avg_sec": "7.2", "smv": "0.138", "hourly": "869"}, {"sl": 17, "step": "Wire Cutting", "worker": "Khadiza", "mp": "1", "rating": "90.0%", "avg_sec": "3.2", "smv": "0.0613", "hourly": "978"}, {"sl": 18, "step": "Back part cleaning", "worker": "Shahnaz", "mp": "1", "rating": "75.0%", "avg_sec": "20.2", "smv": "0.3872", "hourly": "154"}, {"sl": 19, "step": "Helping to get frame from print", "worker": "Rita", "mp": "1", "rating": "90.0%", "avg_sec": "5.4", "smv": "0.1035", "hourly": "579"}, {"sl": 20, "step": "Lasering", "worker": "Rifat", "mp": "1", "rating": "85.0%", "avg_sec": "3.0", "smv": "0.0575", "hourly": "1,043"}], "summary": {"smv": "6.34", "hourly_capacity": "90", "manpower": "22", "daily_capacity": "723", "rating": "83.8%", "no_of_steps": ""}}, {"name": "Line Balancing() Exhaust Fan 10", "product_group": "", "item_code": "", "item_name": "Exhaust Fan 10 Inch", "steps": [{"sl": 1, "step": "Backpart and Motor Installation", "worker": "", "mp": "1", "rating": "80.0%", "avg_sec": "11.0", "smv": "0.2108", "hourly": "284"}, {"sl": 2, "step": "Motor Screwing (4 pieces)", "worker": "Akhi", "mp": "1", "rating": "70.0%", "avg_sec": "17.2", "smv": "0.3297", "hourly": "182"}, {"sl": 3, "step": "Motor Wire adjust with frame", "worker": "Hira", "mp": "1", "rating": "85.0%", "avg_sec": "18.2", "smv": "0.3488", "hourly": "172"}, {"sl": 4, "step": "Input cable lock with backpart", "worker": "Riya", "mp": "1", "rating": "85.0%", "avg_sec": "24.8", "smv": "0.4753", "hourly": "126"}, {"sl": 5, "step": "capacitor and wire joint", "worker": "Tamima, Shayla", "mp": "2", "rating": "85.0%", "avg_sec": "28.2", "smv": "0.5405", "hourly": "222"}, {"sl": 6, "step": "Wire Protector install", "worker": "Khusbu", "mp": "1", "rating": "85.0%", "avg_sec": "16.8", "smv": "0.322", "hourly": "186"}, {"sl": 7, "step": "capactor box adjust", "worker": "Shivina", "mp": "1", "rating": "90.0%", "avg_sec": "10.0", "smv": "0.1917", "hourly": "313"}, {"sl": 8, "step": "shutter installation", "worker": "Shima", "mp": "2", "rating": "85.0%", "avg_sec": "34.6", "smv": "0.6632", "hourly": "180"}, {"sl": 9, "step": "Blade installation with lock", "worker": "Anowara", "mp": "1", "rating": "85.0%", "avg_sec": "22.0", "smv": "0.4217", "hourly": "142"}, {"sl": 10, "step": "cleaning and new cover install", "worker": "Nasima", "mp": "1", "rating": "85.0%", "avg_sec": "11.0", "smv": "0.2108", "hourly": "284"}, {"sl": 11, "step": "In Line QC", "worker": "Afroza", "mp": "1", "rating": "85.0%", "avg_sec": "22.2", "smv": "0.4255", "hourly": "141"}, {"sl": 12, "step": "Single poly and warrenty card insertion", "worker": "Kulsum", "mp": "1", "rating": "85.0%", "avg_sec": "16.2", "smv": "0.3105", "hourly": "193"}, {"sl": 13, "step": "Single pack packaging", "worker": "Samia", "mp": "1", "rating": "85.0%", "avg_sec": "17.8", "smv": "0.3412", "hourly": "175"}, {"sl": 14, "step": "Single pack taping and ready", "worker": "Shourov", "mp": "1", "rating": "80.0%", "avg_sec": "14.6", "smv": "0.2798", "hourly": "214"}, {"sl": 15, "step": "Bailing", "worker": "Abdur", "mp": "1", "rating": "80.0%", "avg_sec": "27.2", "smv": "0.5213", "hourly": ""}, {"sl": 16, "step": "Wire tip cutting", "worker": "Bristy, Shilpi", "mp": "1", "rating": "90.0%", "avg_sec": "7.2", "smv": "0.138", "hourly": "434"}, {"sl": 17, "step": "Wire Cutting", "worker": "Khadiza", "mp": "1", "rating": "90.0%", "avg_sec": "3.2", "smv": "0.0613", "hourly": "978"}, {"sl": 18, "step": "Back part cleaning", "worker": "Shahnaz", "mp": "1", "rating": "75.0%", "avg_sec": "20.2", "smv": "0.3872", "hourly": "154"}, {"sl": 19, "step": "Helping to get frame from print", "worker": "Rita", "mp": "1", "rating": "90.0%", "avg_sec": "5.4", "smv": "0.1035", "hourly": "579"}, {"sl": 20, "step": "Lasering", "worker": "Rifat", "mp": "1", "rating": "85.0%", "avg_sec": "3.0", "smv": "0.0575", "hourly": "1,043"}], "summary": {"smv": "6.34", "hourly_capacity": "126", "manpower": "22", "daily_capacity": "1,009", "rating": "83.8%", "no_of_steps": ""}}, {"name": "Octagonal Ceiling Rose", "product_group": "", "item_code": "", "item_name": "ENOVAR OCTAGONAL CEILING ROSE", "steps": [{"sl": 1, "step": "Screw attach with terminal", "worker": "", "mp": "2", "rating": "", "avg_sec": "13.68", "smv": "0.2622", "hourly": "457"}, {"sl": 2, "step": "Terminal Screw tight by M/C", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.28", "smv": "0.082", "hourly": "731"}, {"sl": 3, "step": "Terminal Attach with Body", "worker": "", "mp": "4", "rating": "", "avg_sec": "21.44", "smv": "0.4109", "hourly": "584"}, {"sl": 4, "step": "Decorative Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.12", "smv": "0.1556", "hourly": "385"}, {"sl": 5, "step": "Cleaning", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.88", "smv": "0.1127", "hourly": "532"}, {"sl": 6, "step": "Cap Attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.16", "smv": "0.1181", "hourly": "508"}, {"sl": 7, "step": "Single Poly With Installation Screw", "worker": "", "mp": "2", "rating": "", "avg_sec": "11.84", "smv": "0.2269", "hourly": "528"}, {"sl": 8, "step": "Single Poly Seal", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.32", "smv": "0.1403", "hourly": "427"}, {"sl": 9, "step": "Dozen Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.04", "smv": "0.1733", "hourly": ""}], "summary": {"smv": "1.682", "hourly_capacity": "385", "manpower": "14", "daily_capacity": "3,084", "rating": "", "no_of_steps": ""}}, {"name": "Cherry DP Switch With NEON 32A", "product_group": "", "item_code": "", "item_name": "ENOVAR CHERRY DP SWITCH WITH NEON 32A", "steps": [{"sl": 1, "step": "Terminal + Screw", "worker": "", "mp": "1", "rating": "", "avg_sec": "2.95", "smv": "0.0565", "hourly": "1,061"}, {"sl": 2, "step": "Backpart + Pole + Connecting Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.92", "smv": "0.0943", "hourly": "636"}, {"sl": 3, "step": "Stamping Part + Support Part + Iron Buckle", "worker": "", "mp": "2", "rating": "", "avg_sec": "27.72", "smv": "0.5313", "hourly": "225"}, {"sl": 4, "step": "Lamp + Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.6", "smv": "0.2223", "hourly": "269"}, {"sl": 5, "step": "Press Pin Supporting Part + Press Pin + Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.48", "smv": "0.22", "hourly": "272"}, {"sl": 6, "step": "Front Part + Lamp with Spring", "worker": "", "mp": "2", "rating": "", "avg_sec": "13.64", "smv": "0.2614", "hourly": "459"}, {"sl": 7, "step": "Attach Front Part with Back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.72", "smv": "0.1863", "hourly": "322"}, {"sl": 8, "step": "Button + Indicator", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.04", "smv": "0.2116", "hourly": "283"}, {"sl": 9, "step": "Attaching Metal Plate + Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "13.08", "smv": "0.2507", "hourly": "239"}, {"sl": 10, "step": "Single Poly", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.2", "smv": "0.0997", "hourly": "602"}, {"sl": 11, "step": "Single Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.84", "smv": "0.1311", "hourly": "457"}, {"sl": 12, "step": "Master Pack (10 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "15.2", "smv": "0.2913", "hourly": ""}], "summary": {"smv": "2.557", "hourly_capacity": "225", "manpower": "14", "daily_capacity": "1,806", "rating": "", "no_of_steps": ""}}, {"name": "OCTAGONAL HOLDER B22", "product_group": "", "item_code": "", "item_name": "ENOVAR OCTAGONAL HOLDER B22", "steps": [{"sl": 1, "step": "Check body & Pin Insert with Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "18.72", "smv": "0.3588", "hourly": "167"}, {"sl": 2, "step": "Bush/Common terminal + Plastic lock", "worker": "", "mp": "1", "rating": "", "avg_sec": "16.2", "smv": "0.3105", "hourly": "193"}, {"sl": 3, "step": "Cable bending + Cable Strip Connector", "worker": "", "mp": "5", "rating": "", "avg_sec": "96.8", "smv": "1.8553", "hourly": "161"}, {"sl": 4, "step": "Cable input with Cable Strip Connector", "worker": "", "mp": "2", "rating": "", "avg_sec": "18.88", "smv": "0.3619", "hourly": "331"}, {"sl": 5, "step": "Screw & Terminal", "worker": "", "mp": "2", "rating": "", "avg_sec": "3.84", "smv": "0.0736", "hourly": "1,630"}, {"sl": 6, "step": "Decorating Plug", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.08", "smv": "0.1357", "hourly": "442"}, {"sl": 7, "step": "Metal base Install with body", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.84", "smv": "0.1503", "hourly": "399"}, {"sl": 8, "step": "Body & Lock fixing for B22 (screw by M/C)", "worker": "", "mp": "2", "rating": "", "avg_sec": "7.16", "smv": "0.1372", "hourly": "874"}, {"sl": 9, "step": "Single Poly", "worker": "", "mp": "2", "rating": "", "avg_sec": "11.84", "smv": "0.2269", "hourly": "528"}, {"sl": 10, "step": "Single Poly Seal", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.32", "smv": "0.1403", "hourly": "427"}, {"sl": 11, "step": "Master Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.04", "smv": "0.1733", "hourly": "346"}], "summary": {"smv": "3.924", "hourly_capacity": "161", "manpower": "19", "daily_capacity": "1,293", "rating": "", "no_of_steps": ""}}, {"name": "Cherry Fan Regulator", "product_group": "", "item_code": "", "item_name": "ENOVAR CHERRY FAN REGULATOR 500W", "steps": [{"sl": 1, "step": "Back Part + Metal Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.28", "smv": "0.1779", "hourly": "337"}, {"sl": 2, "step": "Bush Insert (2 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.44", "smv": "0.1618", "hourly": "370"}, {"sl": 3, "step": "Tricon Part Insert", "worker": "", "mp": "1", "rating": "", "avg_sec": "3.36", "smv": "0.0644", "hourly": "931"}, {"sl": 4, "step": "Stamping Part + Lock", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.64", "smv": "0.1848", "hourly": "324"}, {"sl": 5, "step": "Button + Bullet with Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.64", "smv": "0.1273", "hourly": "471"}, {"sl": 6, "step": "Button attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.08", "smv": "0.1932", "hourly": "310"}, {"sl": 7, "step": "Small Cover attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.64", "smv": "0.1081", "hourly": "555"}, {"sl": 8, "step": "Washer & Nut tight by Hand M/C", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.88", "smv": "0.1127", "hourly": "532"}, {"sl": 9, "step": "Terminal Screw", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.52", "smv": "0.0866", "hourly": "692"}, {"sl": 10, "step": "Knob attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.88", "smv": "0.0935", "hourly": "641"}, {"sl": 11, "step": "Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.56", "smv": "0.1066", "hourly": "563"}, {"sl": 12, "step": "Single Poly", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.2", "smv": "0.0997", "hourly": "602"}, {"sl": 13, "step": "Single Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.84", "smv": "0.1311", "hourly": "457"}, {"sl": 14, "step": "Master carton", "worker": "", "mp": "1", "rating": "", "avg_sec": "15.2", "smv": "0.2913", "hourly": ""}], "summary": {"smv": "1.939", "hourly_capacity": "310", "manpower": "14", "daily_capacity": "2,484", "rating": "", "no_of_steps": ""}}, {"name": "Panel Surface Round 12w DL", "product_group": "", "item_code": "", "item_name": "ENOVAR PANEL SURFACE ROUND 12W DL", "steps": [{"sl": 1, "step": "Both Side Tape attach with chip", "worker": "", "mp": "1", "rating": "", "avg_sec": "13.52", "smv": "0.2591", "hourly": "231"}, {"sl": 2, "step": "Housing Check & chip file ditach", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.48", "smv": "0.1625", "hourly": "369"}, {"sl": 3, "step": "Chip attaching with Housing", "worker": "", "mp": "2", "rating": "", "avg_sec": "18.84", "smv": "0.3611", "hourly": "332"}, {"sl": 4, "step": "Driver, In Cable Soldering", "worker": "", "mp": "1", "rating": "", "avg_sec": "15.4", "smv": "0.2952", "hourly": "203"}, {"sl": 5, "step": "Driver, Out Cable Soldering", "worker": "", "mp": "1", "rating": "", "avg_sec": "15.32", "smv": "0.2936", "hourly": "204"}, {"sl": 6, "step": "Connector Cable Soldering with Chip", "worker": "", "mp": "1", "rating": "", "avg_sec": "14.56", "smv": "0.2791", "hourly": "215"}, {"sl": 7, "step": "Deffuser (A+B+C) Attach with Housing", "worker": "", "mp": "1", "rating": "", "avg_sec": "15.52", "smv": "0.2975", "hourly": "201"}, {"sl": 8, "step": "Back Cover placement", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.96", "smv": "0.2101", "hourly": "285"}, {"sl": 9, "step": "Foam Attach with Back Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.56", "smv": "0.1257", "hourly": "477"}, {"sl": 10, "step": "Back Part Attach by Screw", "worker": "", "mp": "2", "rating": "", "avg_sec": "15.0", "smv": "0.2875", "hourly": "417"}, {"sl": 11, "step": "Driver Box adjust with Back & Front Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.56", "smv": "0.2024", "hourly": "296"}, {"sl": 12, "step": "Driver Install with Panel", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.44", "smv": "0.1426", "hourly": "420"}], "summary": {"smv": "2.916", "hourly_capacity": "201", "manpower": "14", "daily_capacity": "1,613", "rating": "", "no_of_steps": ""}}, {"name": "Saffron 5 Pin Multi Socket", "product_group": "", "item_code": "", "item_name": "ENOVAR SAFFRON 5 PIN MULTI SOCKET WITH SWITCH 13A", "steps": [{"sl": 1, "step": "Support Pin attach with L Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.88", "smv": "0.2277", "hourly": "263"}, {"sl": 2, "step": "Support Pin attach with N Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.16", "smv": "0.2139", "hourly": "280"}, {"sl": 3, "step": "Edge Grain + Iron Buckle for L Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.24", "smv": "0.1579", "hourly": "379"}, {"sl": 4, "step": "Attach L Polar & N Polar with Back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.4", "smv": "0.1802", "hourly": "333"}, {"sl": 5, "step": "Edge Grain for N Polar & {Polar adjustment need for Plug-in (Extra Work)}", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.32", "smv": "0.1595", "hourly": "376"}, {"sl": 6, "step": "Edge Grain + E Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.08", "smv": "0.1932", "hourly": "310"}, {"sl": 7, "step": "Pressure Plate + Stamping Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.48", "smv": "0.1817", "hourly": "330"}, {"sl": 8, "step": "Bullet + Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.48", "smv": "0.0859", "hourly": "698"}, {"sl": 9, "step": "Attach Bullet & Spring with Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.56", "smv": "0.1449", "hourly": "414"}, {"sl": 10, "step": "Indicator Attach with Pressure Plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.32", "smv": "0.217", "hourly": "276"}, {"sl": 11, "step": "Safety Door (3 Pin)", "worker": "", "mp": "2", "rating": "", "avg_sec": "17.56", "smv": "0.3366", "hourly": "356"}, {"sl": 12, "step": "Shutter Door (2 Pin)", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.24", "smv": "0.1388", "hourly": "432"}, {"sl": 13, "step": "Pressure Plate attach with Backpart", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.52", "smv": "0.1633", "hourly": "367"}, {"sl": 14, "step": "Metal Plate + Light Indicator", "worker": "", "mp": "1", "rating": "", "avg_sec": "11.32", "smv": "0.217", "hourly": "276"}, {"sl": 15, "step": "Full Cover Attachment", "worker": "", "mp": "1", "rating": "", "avg_sec": "3.36", "smv": "0.0644", "hourly": "931"}], "summary": {"smv": "2.682", "hourly_capacity": "263", "manpower": "16", "daily_capacity": "2,108", "rating": "", "no_of_steps": ""}}, {"name": "Onyx 5 PIN Multi Socket", "product_group": "", "item_code": "", "item_name": "ENOVAR ONYX 5 PIN MULTI SOCKET WITH SWITCH 13A", "steps": [{"sl": 1, "step": "Back Sheet + N Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.92", "smv": "0.1135", "hourly": "528"}, {"sl": 2, "step": "Back Sheet + L Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.48", "smv": "0.1625", "hourly": "369"}, {"sl": 3, "step": "E Polar + Tricon Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.8", "smv": "0.1878", "hourly": "319"}, {"sl": 4, "step": "Stamping Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.92", "smv": "0.1518", "hourly": "395"}, {"sl": 5, "step": "Pressure Plate + Neon Light", "worker": "", "mp": "2", "rating": "", "avg_sec": "10.8", "smv": "0.207", "hourly": "579"}, {"sl": 6, "step": "Safety Door + Shutter door in Small Cover", "worker": "", "mp": "2", "rating": "", "avg_sec": "20.8", "smv": "0.3987", "hourly": "301"}, {"sl": 7, "step": "Bullet + Spring + Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.64", "smv": "0.1464", "hourly": "409"}, {"sl": 8, "step": "Button Attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.36", "smv": "0.1027", "hourly": "584"}, {"sl": 9, "step": "Pressure Plate adjust with back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.48", "smv": "0.1625", "hourly": "369"}, {"sl": 10, "step": "Small Cover + Metal Plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.24", "smv": "0.1963", "hourly": "305"}, {"sl": 11, "step": "Light Indicator + Screw Placement", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.76", "smv": "0.1487", "hourly": "403"}, {"sl": 12, "step": "Screwing", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.56", "smv": "0.0874", "hourly": "686"}, {"sl": 13, "step": "Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "3.72", "smv": "0.0713", "hourly": "841"}], "summary": {"smv": "2.137", "hourly_capacity": "301", "manpower": "15", "daily_capacity": "2,408", "rating": "", "no_of_steps": ""}}, {"name": "Onyx Three Gang One Way Switch", "product_group": "", "item_code": "", "item_name": "ENOVAR SAFFRON 5 PIN MULTI SOCKET WITH SWITCH 13A", "steps": [{"sl": 1, "step": "Bush, Tricon Part & lock insert in Backpart", "worker": "", "mp": "2", "rating": "", "avg_sec": "10.24", "smv": "0.1963", "hourly": "611"}, {"sl": 2, "step": "knob insert with metal plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.28", "smv": "0.1779", "hourly": "337"}, {"sl": 3, "step": "Stamping part", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.2", "smv": "0.1955", "hourly": "306"}, {"sl": 4, "step": "Spring + Bullet", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.04", "smv": "0.0774", "hourly": "774"}, {"sl": 5, "step": "Button + Decorative part", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.08", "smv": "0.0974", "hourly": "616"}, {"sl": 6, "step": "Button + Bullet with Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.12", "smv": "0.079", "hourly": "759"}, {"sl": 7, "step": "Button insert with body", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.24", "smv": "0.1771", "hourly": "338"}, {"sl": 8, "step": "Terminal Screw insert & teight by M/C", "worker": "", "mp": "2", "rating": "", "avg_sec": "17.2", "smv": "0.3297", "hourly": "364"}, {"sl": 9, "step": "Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "4.6", "smv": "0.0882", "hourly": "680"}], "summary": {"smv": "1.418", "hourly_capacity": "306", "manpower": "11", "daily_capacity": "2,455", "rating": "", "no_of_steps": ""}}, {"name": "Piano One Way Switch", "product_group": "", "item_code": "", "item_name": "", "steps": [{"sl": 1, "step": "Backpart + Tricon Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.2", "smv": "0.1763", "hourly": "340"}, {"sl": 2, "step": "Bush", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.12", "smv": "0.1173", "hourly": "511"}, {"sl": 3, "step": "Stamping Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.0", "smv": "0.1725", "hourly": "347"}, {"sl": 4, "step": "Bullet + Spring in Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.32", "smv": "0.1978", "hourly": "303"}, {"sl": 5, "step": "Button Adjust", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.2", "smv": "0.1763", "hourly": "340"}, {"sl": 6, "step": "Nut + Bolt", "worker": "", "mp": "2", "rating": "", "avg_sec": "19.32", "smv": "0.3703", "hourly": "324"}, {"sl": 7, "step": "Front Cover + Small Cover", "worker": "", "mp": "2", "rating": "", "avg_sec": "8.84", "smv": "0.1694", "hourly": "708"}, {"sl": 8, "step": "Terminal Screw", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.24", "smv": "0.1579", "hourly": "379"}, {"sl": 9, "step": "Single Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.08", "smv": "0.174", "hourly": "344"}, {"sl": 10, "step": "Master Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "22.76", "smv": "0.4362", "hourly": ""}], "summary": {"smv": "2.148", "hourly_capacity": "303", "manpower": "12", "daily_capacity": "2,426", "rating": "", "no_of_steps": ""}}, {"name": "Packaging - Panel Surface Round", "product_group": "", "item_code": "", "item_name": "Packing  ENOVAR PANEL SURFACE ROUND 12W DL", "steps": [{"sl": 1, "step": "Laser on Backside", "worker": "", "mp": "1", "rating": "", "avg_sec": "6.2", "smv": "0.1188", "hourly": "504"}, {"sl": 2, "step": "Cleaning", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.44", "smv": "0.1043", "hourly": "575"}, {"sl": 3, "step": "Warranty Card Attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.28", "smv": "0.1395", "hourly": "430"}, {"sl": 4, "step": "Single Poly", "worker": "", "mp": "3", "rating": "", "avg_sec": "17.04", "smv": "0.3266", "hourly": "551"}, {"sl": 5, "step": "Single Pack SKU Marking", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.28", "smv": "0.1587", "hourly": "378"}, {"sl": 6, "step": "Single Pack folding", "worker": "", "mp": "2", "rating": "", "avg_sec": "10.2", "smv": "0.1955", "hourly": "613"}, {"sl": 7, "step": "Insert Product in Single Pack", "worker": "", "mp": "2", "rating": "", "avg_sec": "11.56", "smv": "0.2216", "hourly": "541"}, {"sl": 8, "step": "Cover closing for single pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.24", "smv": "0.1579", "hourly": "379"}, {"sl": 9, "step": "Master Pack (12 Piece)", "worker": "", "mp": "2", "rating": "", "avg_sec": "6.64", "smv": "0.1273", "hourly": ""}], "summary": {"smv": "1.55", "hourly_capacity": "378", "manpower": "14", "daily_capacity": "3,024", "rating": "", "no_of_steps": ""}}, {"name": "Lumigold 3 Pin Round Socket wit", "product_group": "", "item_code": "", "item_name": "ENOVAR LUMIGOLD 3 PIN ROUND SOCKET WITH SWITCH 15A", "steps": [{"sl": 1, "step": "Backpart + L Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.44", "smv": "0.1043", "hourly": "575"}, {"sl": 2, "step": "Backpart + N Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.92", "smv": "0.1518", "hourly": "395"}, {"sl": 3, "step": "E Polar + Tricon Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "9.4", "smv": "0.1802", "hourly": "333"}, {"sl": 4, "step": "Stamping Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "16.68", "smv": "0.3197", "hourly": "187"}, {"sl": 5, "step": "Button Insert with Backpart", "worker": "", "mp": "1", "rating": "", "avg_sec": "8.48", "smv": "0.1625", "hourly": "369"}, {"sl": 6, "step": "Pressure Plate + Neon Light", "worker": "", "mp": "1", "rating": "", "avg_sec": "16.52", "smv": "0.3166", "hourly": "189"}, {"sl": 7, "step": "Spring + Bullet", "worker": "", "mp": "1", "rating": "", "avg_sec": "3.8", "smv": "0.0728", "hourly": "823"}, {"sl": 8, "step": "Button + Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.24", "smv": "0.1388", "hourly": "432"}, {"sl": 9, "step": "Pressure Plate attach with Backpart", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.88", "smv": "0.2085", "hourly": "287"}, {"sl": 10, "step": "Attach Small Cover & Metal Plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "12.4", "smv": "0.2377", "hourly": "252"}, {"sl": 11, "step": "Small Cover + Light Indicator", "worker": "", "mp": "1", "rating": "", "avg_sec": "7.76", "smv": "0.1487", "hourly": "403"}, {"sl": 12, "step": "Shutter & Spring attach with small cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.36", "smv": "0.1986", "hourly": "302"}, {"sl": 13, "step": "Terminal Screw placement & tight by M/C", "worker": "", "mp": "1", "rating": "", "avg_sec": "10.64", "smv": "0.2039", "hourly": "294"}, {"sl": 14, "step": "Full Cover attach & Check", "worker": "", "mp": "1", "rating": "", "avg_sec": "5.04", "smv": "0.0966", "hourly": "621"}], "summary": {"smv": "2.541", "hourly_capacity": "187", "manpower": "14", "daily_capacity": "1,501", "rating": "", "no_of_steps": ""}}, {"name": "High Watt LED 50W E27", "product_group": "", "item_code": "", "item_name": "ENOVAR HIGH WATT LED 50W E27 DL", "steps": [{"sl": 1, "step": "Capacitor & Registor", "worker": "", "mp": "2", "rating": "", "avg_sec": "30.8", "smv": "0.5903", "hourly": "203"}, {"sl": 2, "step": "Input Wire on Chip", "worker": "", "mp": "1", "rating": "", "avg_sec": "23.8", "smv": "0.4562", "hourly": "131"}, {"sl": 3, "step": "Chip Install with Housing", "worker": "", "mp": "3", "rating": "", "avg_sec": "41.0", "smv": "0.7858", "hourly": "229"}, {"sl": 4, "step": "Base Cap Install with Housing", "worker": "", "mp": "3", "rating": "", "avg_sec": "40.2", "smv": "0.7705", "hourly": "233"}, {"sl": 5, "step": "Wire Cutting & Soldering", "worker": "", "mp": "6", "rating": "", "avg_sec": "110.4", "smv": "2.116", "hourly": "170"}, {"sl": 6, "step": "Crimping", "worker": "", "mp": "1", "rating": "", "avg_sec": "17.8", "smv": "0.3412", "hourly": "175"}, {"sl": 7, "step": "Batch Printing", "worker": "", "mp": "1", "rating": "", "avg_sec": "26.4", "smv": "0.506", "hourly": "118"}, {"sl": 8, "step": "Hologram Attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "23.8", "smv": "0.4562", "hourly": "131"}, {"sl": 9, "step": "Pack Marking", "worker": "", "mp": "1", "rating": "", "avg_sec": "23.4", "smv": "0.4485", "hourly": "133"}, {"sl": 10, "step": "Pack Folding", "worker": "", "mp": "2", "rating": "", "avg_sec": "61.8", "smv": "1.1845", "hourly": "101"}, {"sl": 11, "step": "Supporting Foam (Shalaka) Insert in pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "28.4", "smv": "0.5443", "hourly": "110"}, {"sl": 12, "step": "Light + Warranty Card Insert in pack", "worker": "", "mp": "2", "rating": "", "avg_sec": "37.2", "smv": "0.713", "hourly": "168"}, {"sl": 13, "step": "Single Pack cover closing", "worker": "", "mp": "1", "rating": "", "avg_sec": "28.0", "smv": "0.5367", "hourly": "111"}, {"sl": 14, "step": "Master Packaging", "worker": "", "mp": "1", "rating": "", "avg_sec": "87.0", "smv": "1.6675", "hourly": ""}], "summary": {"smv": "11.117", "hourly_capacity": "101", "manpower": "26", "daily_capacity": "810", "rating": "", "no_of_steps": ""}}, {"name": "Onyx One Gang Two Way Switch", "product_group": "", "item_code": "", "item_name": "ENOVAR HIGH WATT LED 50W E27 DL", "steps": [{"sl": 1, "step": "Backpart + Bush (2 Piece) + Tricon Part", "worker": "", "mp": "3", "rating": "", "avg_sec": "91.2", "smv": "0.3496", "hourly": "514"}, {"sl": 2, "step": "Knob insert in metal plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "22.2", "smv": "0.0851", "hourly": "705"}, {"sl": 3, "step": "Terminal Screw Placement", "worker": "", "mp": "1", "rating": "", "avg_sec": "29.4", "smv": "0.1127", "hourly": "532"}, {"sl": 4, "step": "Terminal Screw Teight by M/C", "worker": "", "mp": "1", "rating": "", "avg_sec": "24.4", "smv": "0.0935", "hourly": "641"}, {"sl": 5, "step": "Button + Decorating part", "worker": "", "mp": "2", "rating": "", "avg_sec": "57.6", "smv": "0.2208", "hourly": "543"}, {"sl": 6, "step": "Bullet + Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "41.4", "smv": "0.1587", "hourly": "378"}, {"sl": 7, "step": "Button + Bullet Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "43.4", "smv": "0.1664", "hourly": "360"}, {"sl": 8, "step": "Stamping part + Button", "worker": "", "mp": "2", "rating": "", "avg_sec": "72.0", "smv": "0.276", "hourly": "434"}, {"sl": 9, "step": "Full Cover", "worker": "", "mp": "2", "rating": "", "avg_sec": "62.4", "smv": "0.2392", "hourly": "501"}], "summary": {"smv": "1.702", "hourly_capacity": "360", "manpower": "14", "daily_capacity": "2,885", "rating": "", "no_of_steps": ""}}, {"name": "Onyx 3 Pin Multi Socket With Sw", "product_group": "", "item_code": "", "item_name": "ENOVAR HIGH WATT LED 50W E27 DL", "steps": [{"sl": 1, "step": "L + N Polar on Backpart", "worker": "", "mp": "1", "rating": "", "avg_sec": "35.0", "smv": "0.1342", "hourly": "447"}, {"sl": 2, "step": "E Polar + Tricon Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "40.2", "smv": "0.1541", "hourly": "389"}, {"sl": 3, "step": "Pressure Plate + Neon Light", "worker": "", "mp": "1", "rating": "", "avg_sec": "47.0", "smv": "0.1802", "hourly": "333"}, {"sl": 4, "step": "Small Cover + Safety door", "worker": "", "mp": "1", "rating": "", "avg_sec": "47.2", "smv": "0.1809", "hourly": "331"}, {"sl": 5, "step": "Bullet + Spring + Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "43.2", "smv": "0.1656", "hourly": "362"}, {"sl": 6, "step": "Pressure Plate attach with Backpart", "worker": "", "mp": "2", "rating": "", "avg_sec": "70.8", "smv": "0.2714", "hourly": "442"}, {"sl": 7, "step": "Stamping part + Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "47.4", "smv": "0.1817", "hourly": "330"}, {"sl": 8, "step": "Small Cover + Metal Plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "47.4", "smv": "0.1817", "hourly": "330"}, {"sl": 9, "step": "Terminal Screw Placement & tight", "worker": "", "mp": "1", "rating": "", "avg_sec": "43.6", "smv": "0.1671", "hourly": "358"}, {"sl": 10, "step": "Light Indicator on small cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "35.4", "smv": "0.1357", "hourly": "442"}, {"sl": 11, "step": "Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "22.0", "smv": "0.0843", "hourly": "711"}], "summary": {"smv": "1.837", "hourly_capacity": "330", "manpower": "12", "daily_capacity": "2,641", "rating": "", "no_of_steps": ""}}, {"name": "PIANO FAN DIMMER 200W", "product_group": "", "item_code": "", "item_name": "ENOVAR PIANO FAN DIMMER 200W", "steps": [{"sl": 1, "step": "Cable Cutting", "worker": "", "mp": "1", "rating": "", "avg_sec": "31.0", "smv": "0.1188", "hourly": "504"}, {"sl": 2, "step": "Input Cable Soldering with Circuit", "worker": "", "mp": "3", "rating": "", "avg_sec": "110.0", "smv": "0.4217", "hourly": "426"}, {"sl": 3, "step": "Circuit insert in Backpart", "worker": "", "mp": "1", "rating": "", "avg_sec": "24.4", "smv": "0.0935", "hourly": "641"}, {"sl": 4, "step": "Pressure part + Base + Nut insert", "worker": "", "mp": "2", "rating": "", "avg_sec": "83.2", "smv": "0.3189", "hourly": "376"}, {"sl": 5, "step": "Screw Install & tight with Base & Backpart", "worker": "", "mp": "3", "rating": "", "avg_sec": "165.6", "smv": "0.6348", "hourly": "283"}, {"sl": 6, "step": "Washer + knob Screw Insert & tight", "worker": "", "mp": "1", "rating": "", "avg_sec": "58.0", "smv": "0.2223", "hourly": "269"}, {"sl": 7, "step": "Decorative Part + knob", "worker": "", "mp": "2", "rating": "", "avg_sec": "106.4", "smv": "0.4079", "hourly": "294"}, {"sl": 8, "step": "Single Zip Poly with Sticker", "worker": "", "mp": "3", "rating": "", "avg_sec": "189.6", "smv": "0.7268", "hourly": ""}, {"sl": 9, "step": "Dozen Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "65.4", "smv": "0.2507", "hourly": ""}], "summary": {"smv": "3.195", "hourly_capacity": "269", "manpower": "17", "daily_capacity": "2,158", "rating": "", "no_of_steps": ""}}, {"name": "SAFFRON TWO GANG ONE WAY SWITCH", "product_group": "", "item_code": "", "item_name": "ENOVAR SAFFRON TWO GANG ONE WAY SWITCH 16A", "steps": [{"sl": 1, "step": "Backpart + Tricon Part + Bush", "worker": "", "mp": "2", "rating": "", "avg_sec": "48.4", "smv": "0.1855", "hourly": "646"}, {"sl": 2, "step": "Metal Plate + Lock", "worker": "", "mp": "1", "rating": "", "avg_sec": "75.8", "smv": "0.2906", "hourly": "206"}, {"sl": 3, "step": "Stamping Part + Button", "worker": "", "mp": "2", "rating": "", "avg_sec": "108.8", "smv": "0.4171", "hourly": "287"}, {"sl": 4, "step": "Terminal Screw Placement", "worker": "", "mp": "1", "rating": "", "avg_sec": "81.8", "smv": "0.3136", "hourly": "191"}, {"sl": 5, "step": "Screw by M/C", "worker": "", "mp": "2", "rating": "", "avg_sec": "80.4", "smv": "0.3082", "hourly": "389"}, {"sl": 6, "step": "Full Cover + Check", "worker": "", "mp": "1", "rating": "", "avg_sec": "65.2", "smv": "0.2499", "hourly": "240"}, {"sl": 7, "step": "Single Poly", "worker": "", "mp": "1", "rating": "", "avg_sec": "26.0", "smv": "0.0997", "hourly": "602"}, {"sl": 8, "step": "Single Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "34.2", "smv": "0.1311", "hourly": "457"}, {"sl": 9, "step": "Master carton", "worker": "", "mp": "1", "rating": "", "avg_sec": "76.0", "smv": "0.2913", "hourly": "205"}], "summary": {"smv": "2.287", "hourly_capacity": "191", "manpower": "12", "daily_capacity": "1,530", "rating": "", "no_of_steps": ""}}, {"name": "Lumigold Four Gang Switch", "product_group": "", "item_code": "", "item_name": "ENOVAR LUMIGOLD FOUR GANG ONE WAY SWITCH 16A", "steps": [{"sl": 1, "step": "Backpart + Tricon Part + Bush", "worker": "", "mp": "2", "rating": "", "avg_sec": "48.4", "smv": "0.1855", "hourly": "646"}, {"sl": 2, "step": "Metal Plate + Lock", "worker": "", "mp": "1", "rating": "", "avg_sec": "75.8", "smv": "0.2906", "hourly": "206"}, {"sl": 3, "step": "Stamping Part + Button", "worker": "", "mp": "2", "rating": "", "avg_sec": "108.8", "smv": "0.4171", "hourly": "287"}, {"sl": 4, "step": "Terminal Screw Placement", "worker": "", "mp": "1", "rating": "", "avg_sec": "81.8", "smv": "0.3136", "hourly": "191"}, {"sl": 5, "step": "Screw by M/C", "worker": "", "mp": "2", "rating": "", "avg_sec": "80.4", "smv": "0.3082", "hourly": "389"}, {"sl": 6, "step": "Full Cover + Check", "worker": "", "mp": "1", "rating": "", "avg_sec": "65.2", "smv": "0.2499", "hourly": "240"}, {"sl": 7, "step": "Single Poly", "worker": "", "mp": "1", "rating": "", "avg_sec": "26.0", "smv": "0.0997", "hourly": "602"}, {"sl": 8, "step": "Single Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "34.2", "smv": "0.1311", "hourly": "457"}, {"sl": 9, "step": "Master carton", "worker": "", "mp": "1", "rating": "", "avg_sec": "76.0", "smv": "0.2913", "hourly": "205"}], "summary": {"smv": "2.287", "hourly_capacity": "191", "manpower": "12", "daily_capacity": "1,530", "rating": "", "no_of_steps": ""}}, {"name": "Saffron 3 Pin Round Socket With", "product_group": "", "item_code": "", "item_name": "ENOVAR SAFFRON 3 PIN ROUND SOCKET WITH SWITCH 32A", "steps": [{"sl": 1, "step": "Backpart + Edge grain + Iron Buckle", "worker": "", "mp": "1", "rating": "", "avg_sec": "33.2", "smv": "0.1273", "hourly": "471"}, {"sl": 2, "step": "Iron Buckle + E Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "41.8", "smv": "0.1602", "hourly": "374"}, {"sl": 3, "step": "Iron Buckle + N Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "36.6", "smv": "0.1403", "hourly": "427"}, {"sl": 4, "step": "Stamping Part + L Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "40.0", "smv": "0.1533", "hourly": "391"}, {"sl": 5, "step": "Bullet + Spring + Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "34.0", "smv": "0.1303", "hourly": "460"}, {"sl": 6, "step": "Pressure Plate + Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "24.8", "smv": "0.0951", "hourly": "631"}, {"sl": 7, "step": "Pressure Plate + Neon Light", "worker": "", "mp": "3", "rating": "", "avg_sec": "67.8", "smv": "0.2599", "hourly": "692"}, {"sl": 8, "step": "Safety door + Spring + Pressure Plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "42.6", "smv": "0.1633", "hourly": "367"}, {"sl": 9, "step": "Backpart + Pressure plate Attach", "worker": "", "mp": "1", "rating": "", "avg_sec": "27.8", "smv": "0.1066", "hourly": "563"}, {"sl": 10, "step": "Light Indicator + Iron Plate", "worker": "", "mp": "1", "rating": "", "avg_sec": "38.8", "smv": "0.1487", "hourly": "403"}, {"sl": 11, "step": "Check + Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "28.2", "smv": "0.1081", "hourly": "555"}], "summary": {"smv": "1.593", "hourly_capacity": "367", "manpower": "13", "daily_capacity": "2,939", "rating": "", "no_of_steps": ""}}, {"name": "Orchid Fan Regulator", "product_group": "", "item_code": "", "item_name": "ENOVAR ORCHID FAN REGULATOR 500W", "steps": [{"sl": 1, "step": "Back Part + Edge Grain + Iron Buckle", "worker": "", "mp": "1", "rating": "", "avg_sec": "29.0", "smv": "0.1112", "hourly": "539"}, {"sl": 2, "step": "Silver Tip + Iron Buckle", "worker": "", "mp": "1", "rating": "", "avg_sec": "40.8", "smv": "0.1564", "hourly": "383"}, {"sl": 3, "step": "Stamping Part + Regulator Knob", "worker": "", "mp": "1", "rating": "", "avg_sec": "57.2", "smv": "0.2193", "hourly": "273"}, {"sl": 4, "step": "Button + Neon", "worker": "", "mp": "1", "rating": "", "avg_sec": "42.8", "smv": "0.1641", "hourly": "365"}, {"sl": 5, "step": "Pressure Plate + Button Tip & Bullet + Spring", "worker": "", "mp": "1", "rating": "", "avg_sec": "59.4", "smv": "0.2277", "hourly": "263"}, {"sl": 6, "step": "Pressure Plate + Back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "58.6", "smv": "0.2246", "hourly": "267"}, {"sl": 7, "step": "Washer & Nut Install", "worker": "", "mp": "1", "rating": "", "avg_sec": "62.2", "smv": "0.2384", "hourly": "251"}, {"sl": 8, "step": "Metal Plate & Helping Work", "worker": "", "mp": "1", "rating": "", "avg_sec": "15.8", "smv": "0.0606", "hourly": "990"}, {"sl": 9, "step": "Regulator knob + Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "46.6", "smv": "0.1786", "hourly": "335"}, {"sl": 10, "step": "Button + Final Check", "worker": "", "mp": "1", "rating": "", "avg_sec": "35.0", "smv": "0.1342", "hourly": "447"}], "summary": {"smv": "1.715", "hourly_capacity": "251", "manpower": "10", "daily_capacity": "2,013", "rating": "", "no_of_steps": ""}}, {"name": "Orchid Three Gang Oney Way Swit", "product_group": "", "item_code": "", "item_name": "ENOVAR ORCHID THREE GANG ONE WAY SWITCH 16A", "steps": [{"sl": 1, "step": "Backpart + Iron Buckle (5 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "124.4", "smv": "0.4769", "hourly": "125"}, {"sl": 2, "step": "Fake Terminal + Iron Buckle (2 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "118.2", "smv": "0.4531", "hourly": "132"}, {"sl": 3, "step": "Edge Grain (Connecting Part)", "worker": "", "mp": "1", "rating": "", "avg_sec": "115.8", "smv": "0.4439", "hourly": "135"}, {"sl": 4, "step": "Metal Part with Silver tip", "worker": "", "mp": "1", "rating": "", "avg_sec": "128.6", "smv": "0.493", "hourly": "121"}, {"sl": 5, "step": "Stamping Part (3 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "127.8", "smv": "0.4899", "hourly": "122"}, {"sl": 6, "step": "Pressure Plate + Button Tip", "worker": "", "mp": "1", "rating": "", "avg_sec": "104.4", "smv": "0.4002", "hourly": "149"}, {"sl": 7, "step": "Button + Neon", "worker": "", "mp": "1", "rating": "", "avg_sec": "117.6", "smv": "0.4508", "hourly": "133"}, {"sl": 8, "step": "Pressure Plate with Grease in Back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "62.4", "smv": "0.2392", "hourly": "250"}, {"sl": 9, "step": "Metal Plate + Button (2 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "41.8", "smv": "0.1602", "hourly": "374"}, {"sl": 10, "step": "Full Cover + Button (1 Piece)", "worker": "", "mp": "1", "rating": "", "avg_sec": "31.4", "smv": "0.1204", "hourly": "498"}], "summary": {"smv": "3.728", "hourly_capacity": "121", "manpower": "10", "daily_capacity": "973", "rating": "", "no_of_steps": ""}}, {"name": "Onyx 2 Pin Socket", "product_group": "", "item_code": "", "item_name": "ENOVAR ONYX 2 PIN SOCKET WITH SWITCH 10A", "steps": [{"sl": 1, "step": "Spring + Shutter Door", "worker": "", "mp": "1", "rating": "", "avg_sec": "14.8", "smv": "0.0567", "hourly": "1,057"}, {"sl": 2, "step": "Shutter door attach with Small Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "39.4", "smv": "0.151", "hourly": "397"}, {"sl": 3, "step": "Switch Knob + Bush + Tricon Part + Lock", "worker": "", "mp": "1", "rating": "", "avg_sec": "36.4", "smv": "0.1395", "hourly": "430"}, {"sl": 4, "step": "Back Part + Polar", "worker": "", "mp": "1", "rating": "", "avg_sec": "32.4", "smv": "0.1242", "hourly": "483"}, {"sl": 5, "step": "Back Part + Small Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "25.8", "smv": "0.0989", "hourly": "606"}, {"sl": 6, "step": "Iron Plate + Knob + Back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "41.4", "smv": "0.1587", "hourly": "378"}, {"sl": 7, "step": "Button + Spring + Bullet", "worker": "", "mp": "1", "rating": "", "avg_sec": "46.2", "smv": "0.1771", "hourly": "338"}, {"sl": 8, "step": "Button + Decorative Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "57.8", "smv": "0.2216", "hourly": "270"}, {"sl": 9, "step": "Stamping Part + Button", "worker": "", "mp": "1", "rating": "", "avg_sec": "32.0", "smv": "0.1227", "hourly": "489"}, {"sl": 10, "step": "Screw Placement + Screwing", "worker": "", "mp": "1", "rating": "", "avg_sec": "59.2", "smv": "0.2269", "hourly": "264"}, {"sl": 11, "step": "Check + Full Cover", "worker": "", "mp": "1", "rating": "", "avg_sec": "34.4", "smv": "0.1319", "hourly": "455"}], "summary": {"smv": "1.609", "hourly_capacity": "264", "manpower": "11", "daily_capacity": "2,115", "rating": "", "no_of_steps": ""}}, {"name": "Piano 2 Pin Socket", "product_group": "", "item_code": "", "item_name": "ENOVAR ONYX 2 PIN SOCKET WITH SWITCH 10A", "steps": [{"sl": 1, "step": "Backpart + Bush", "worker": "", "mp": "2", "rating": "", "avg_sec": "65.2", "smv": "0.2499", "hourly": "480"}, {"sl": 2, "step": "Polar on Back Part", "worker": "", "mp": "1", "rating": "", "avg_sec": "39.6", "smv": "0.1518", "hourly": "395"}, {"sl": 3, "step": "Polar Screwing with Bush", "worker": "", "mp": "2", "rating": "", "avg_sec": "59.6", "smv": "0.2285", "hourly": "525"}, {"sl": 4, "step": "Bush Terminal Screw", "worker": "", "mp": "1", "rating": "", "avg_sec": "58.0", "smv": "0.2223", "hourly": "269"}, {"sl": 5, "step": "Ring Install with Polar", "worker": "", "mp": "2", "rating": "", "avg_sec": "58.0", "smv": "0.2223", "hourly": "539"}, {"sl": 6, "step": "Nut + Bolt Install with Body", "worker": "", "mp": "2", "rating": "", "avg_sec": "65.0", "smv": "0.2492", "hourly": "481"}, {"sl": 7, "step": "Back Part + Cover + Decorative Frame", "worker": "", "mp": "1", "rating": "", "avg_sec": "39.6", "smv": "0.1518", "hourly": "395"}, {"sl": 8, "step": "Single Poly", "worker": "", "mp": "3", "rating": "", "avg_sec": "181.2", "smv": "0.6946", "hourly": ""}, {"sl": 9, "step": "Master Pack", "worker": "", "mp": "1", "rating": "", "avg_sec": "61.6", "smv": "0.2361", "hourly": ""}], "summary": {"smv": "2.407", "hourly_capacity": "269", "manpower": "15", "daily_capacity": "2,158", "rating": "", "no_of_steps": ""}}, {"name": "15W LED Bulb", "product_group": "", "item_code": "", "item_name": "ENOVAR AC LED BULB 15W E27 DL", "steps": [{"sl": 1, "step": "Capacitor Install on Chip", "worker": "", "mp": "1", "rating": "", "avg_sec": "22.4", "smv": "0.0859", "hourly": "698"}, {"sl": 2, "step": "Registor Install on Chip", "worker": "", "mp": "1", "rating": "", "avg_sec": "22.2", "smv": "0.0851", "hourly": "705"}, {"sl": 3, "step": "Chip detach from plate & housing Install with Base Cap", "worker": "", "mp": "5", "rating": "", "avg_sec": "140.2", "smv": "0.5374", "hourly": "558"}, {"sl": 4, "step": "Wire Cutting , Tip Install and Chip tight with Housing", "worker": "", "mp": "4", "rating": "", "avg_sec": "113.2", "smv": "0.4339", "hourly": "553"}, {"sl": 5, "step": "Crimping & Check", "worker": "", "mp": "1", "rating": "", "avg_sec": "20.8", "smv": "0.0797", "hourly": "752"}, {"sl": 6, "step": "Semi-Automatic Assemble Machine", "worker": "", "mp": "1", "rating": "", "avg_sec": "21.4", "smv": "0.082", "hourly": "731"}], "summary": {"smv": "1.304", "hourly_capacity": "553", "manpower": "13", "daily_capacity": "4,424", "rating": "", "no_of_steps": ""}}];
 
-	<!--news start-->
-	<section class="newsletter">
-  			<div class="wrapper2">
-				<div class="signup">
-  					 <h1 class="title s_h1">Sign up for our newsletter!</h1>
-   					<form class="s_form">
-    				<input type="email"  placeholder="Enter a valid email address">
-   					<button type="submit"><img src="images/send-icon.png" alt="submit"></button>
-   					 </form>
-				</div>
-			 </div>
-	</section>	
-	<!--news end-->
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+const sidebarList   = document.getElementById('sidebarList');
+const sidebarSearch = document.getElementById('sidebarSearch');
+const mainContent   = document.getElementById('mainContent');
 
-	<!--blog start-->
-	<section class="blog">
-		<div class="wrapper2">
-			<div id="blog2"  class="singleitem">
-				<img src="images/5.jpg">
-				<p class="utext">lifestyle</p>
-				<h1 class="head">Top 10 song for running</h1>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea</p>
-			</div>
-			<div id="blog3" class="singleitem">
-				<img src="images/6.jpg">
-				<p class="utext">lifestyle</p>
-				<h1 class="head">Cold winter days</h1>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea</p>
-			</div>
-			<div class="load">
-			<button>Load More</button>
+function buildSidebar(filter = '') {
+  sidebarList.innerHTML = '';
+  const q = filter.toLowerCase();
+  SHEETS.forEach((sheet, idx) => {
+    if (q && !sheet.name.toLowerCase().includes(q)) return;
+    const daily = sheet.summary.daily_capacity;
+    const el = document.createElement('div');
+    el.className = 'sidebar-item';
+    el.dataset.idx = idx;
+    el.innerHTML = `
+      <span class="item-num">${String(idx+1).padStart(2,'0')}</span>
+      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sheet.name}</span>
+      ${daily ? `<span class="item-daily">${daily}</span>` : ''}
+    `;
+    el.addEventListener('click', () => selectSheet(idx));
+    sidebarList.appendChild(el);
+  });
+}
 
-			</div>
-		</div>
-	</section>
-	<!--blog end-->
+sidebarSearch.addEventListener('input', () => buildSidebar(sidebarSearch.value));
 
-	<!--footer start-->
-	<section class="footer">
-		<div class="wrapper">
-			<div class="terms">
-				<ul>
-					<li><a href="#">Terms and condition</a></li>
-					<li><a href="#">Privacy</a></li>
-				</ul>
-			</div>
-			<div class="social">
-				<ul>
-					<li><a href="#">Follow</a></li>
-					<li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-					<li><a href="#"><i class="fab fa-twitter"></i></a></li>
-					<li><a href="#"><i class="fab fa-instagram"></i></a></li>
-				</ul>	
-			</div>
-		</div>
-		
-	</section>
-	<!--footer end-->
+// ── Rating class ─────────────────────────────────────────────────────────────
+function ratingClass(r) {
+  if (!r) return '';
+  const v = parseFloat(r);
+  if (v >= 82) return 'rating-high';
+  if (v >= 75) return 'rating-mid';
+  return 'rating-low';
+}
 
+// ── Select sheet ─────────────────────────────────────────────────────────────
+function selectSheet(idx) {
+  // Update sidebar
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const active = document.querySelector(`.sidebar-item[data-idx="${idx}"]`);
+  if (active) {
+    active.classList.add('active');
+    active.scrollIntoView({ block: 'nearest' });
+  }
 
+  const sheet = SHEETS[idx];
+  const s = sheet.summary;
+  const steps = sheet.steps;
+  const hasData = steps.length > 0;
 
-	<!--blog end-->
+  // Max hourly for bar scaling
+  const maxHourly = Math.max(...steps.map(st => parseInt(st.hourly) || 0), 1);
 
+  // ── KPI cards ───
+  const kpis = [
+    { label:'Hourly Capacity', value: s.hourly_capacity || '—', unit:'', color:'var(--accent)',  icon:`<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>` },
+    { label:'Daily Capacity',  value: s.daily_capacity  || '—', unit:'', color:'var(--accent3)', icon:`<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>` },
+    { label:'Manpower',        value: s.manpower        || '—', unit:'', color:'var(--accent2)', icon:`<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>` },
+    { label:'SMV',             value: s.smv             || '—', unit:'min', color:'var(--accent4)', icon:`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>` },
+    { label:'Rating',          value: s.rating          || '—', unit:'', color:'#a78bfa',         icon:`<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>` },
+    { label:'No. of Steps',    value: s.no_of_steps || steps.length || '—', unit:'', color:'var(--muted)', icon:`<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>` },
+  ];
+
+  const kpiHTML = kpis.map(k => `
+    <div class="kpi-card" style="--kpi-color:${k.color}">
+      <div class="kpi-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${k.icon}</svg>
+        ${k.label}
+      </div>
+      <div class="kpi-value">${k.value}${k.unit ? `<small>${k.unit}</small>` : ''}</div>
+    </div>
+  `).join('');
+
+  // ── Hourly bar chart ───
+  const barsHTML = steps.length ? steps.map(st => {
+    const h = parseInt(st.hourly) || 0;
+    const pct = h ? Math.round(h / maxHourly * 100) : 0;
+    return `
+      <div class="bar-row">
+        <div class="bar-label">${esc(st.step)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <div class="bar-val">${h ? h.toLocaleString() : '—'}</div>
+      </div>
+    `;
+  }).join('') : '<div style="color:var(--muted);font-size:13px;padding:12px 0">No step data</div>';
+
+  // ── Steps table ───
+  const tableRows = steps.map(st => {
+    const h = parseInt(st.hourly) || 0;
+    const maxH = maxHourly;
+    const pct = h ? Math.round(h / maxH * 100) : 0;
+    return `
+      <tr>
+        <td>${st.sl}</td>
+        <td>
+          <div class="step-name">${esc(st.step)}</div>
+          ${st.worker ? `<div class="worker-name">${esc(st.worker)}</div>` : ''}
+        </td>
+        <td><span class="mp-badge">${st.mp || '—'}</span></td>
+        <td>${st.rating ? `<span class="rating-pill ${ratingClass(st.rating)}">${st.rating}</span>` : '<span style="color:var(--muted2)">—</span>'}</td>
+        <td class="num-cell dim">${st.avg_sec || '—'}</td>
+        <td class="num-cell">${st.smv || '—'}</td>
+        <td>
+          <div class="hourly-wrap">
+            <div class="hourly-bar"><div class="hourly-fill" style="width:${pct}%"></div></div>
+            <div class="hourly-num">${h ? h.toLocaleString() : '—'}</div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const noDataCard = !hasData ? `
+    <div class="no-data-card">
+      📋 No step-level data recorded for this product yet
+    </div>
+  ` : '';
+
+  mainContent.innerHTML = `
+    <div class="fade-in">
+      <h1 class="page-title">${esc(sheet.name)}</h1>
+      <div class="page-sub">
+        ${sheet.product_group ? `<span>📦 ${esc(sheet.product_group)}</span>` : ''}
+        ${sheet.item_name     ? `<span>🏷 ${esc(sheet.item_name)}</span>`     : ''}
+        <span style="margin-left:auto;color:var(--muted2);font-size:10px">${idx+1} / ${SHEETS.length}</span>
+      </div>
+
+      <div class="kpi-grid">${kpiHTML}</div>
+
+      ${hasData ? `
+      <div class="section-label">Hourly Output by Step</div>
+      <div class="chart-card">
+        <div class="bar-chart">${barsHTML}</div>
+      </div>
+
+      <div class="section-label">Step-by-Step Breakdown</div>
+      <div class="steps-table-wrap">
+        <div class="steps-table-head">
+          <h3>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Process Steps
+          </h3>
+          <span class="badge-pill">${steps.length} steps</span>
+        </div>
+        <div class="steps-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Step / Worker</th>
+                <th>MP</th>
+                <th>Rating</th>
+                <th>Avg (sec)</th>
+                <th class="col-accent">SMV</th>
+                <th class="col-accent">Hourly Cap.</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      </div>
+      ` : noDataCard}
+    </div>
+  `;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+buildSidebar();
+// Auto-select first sheet
+if (SHEETS.length > 0) selectSheet(0);
+</script>
 </body>
 </html>
